@@ -9,37 +9,38 @@ const mongoose = require('./db/mongoose');
 
 const reqEmitter = new EventEmitter();
 
-reqEmitter.on('received', (result) => {
+
+regOnlineReq({ filter: '', orderBy: ''}, SERVICE.GET_EVENTS )
+  .then((result) => {
+      reqEmitter.emit('eventsReceived', result.ResultsOfListOfEvent.Data.APIEvent);
+  })
+  .catch((e) => {
+    reqEmitter.emit('error', e);
+  })
 
 
-	result.forEach((event) => {
-		const newEvent = new Event({ 
-			ID: event.ID,
-			CustomerID: event.CustomerID,
-			ParentID: event.ParentID,
-			Status: event.Status,
-			Title: event.Title,
-			StartDate: event.StartDate,
-			EndDate: event.EndDate
-		});
-		
-		newEvent.save().then((doc) => {
-				result.shift();
+reqEmitter.on('eventsReceived', (result) => {
 
-				console.log(doc)
+  const saveEvents = result.map((event) => {
+    const newEvent = new Event({ 
+    ID: event.ID,
+    CustomerID: event.CustomerID,
+    ParentID: event.ParentID,
+    Status: event.Status,
+    Title: event.Title,
+    StartDate: event.StartDate,
+    EndDate: event.EndDate
+  });
+  
+  return newEvent.save();
+})
 
-				if (result.length < 1){
-					reqEmitter.emit('disconnect', 'done');
-				}				
-		}).catch((err) => {
-				console.log(err);
-				reqEmitter.emit('disconnect', err);
-		});
-	})
-
-
-	
-	//console.log(JSON.stringify(result, undefined, 2));
+  Promise.all(saveEvents).then(values => { 
+        console.log(values);
+        reqEmitter.emit('disconnect', 'done');
+      }).catch(reason => { 
+        console.log(reason)
+      });
 })
 
 reqEmitter.on('disconnect', (msg) => {
@@ -51,22 +52,4 @@ reqEmitter.on('error', (error) => {
 	console.log(error);
 })
 
-/* 
-regOnlineReq({ filter: '', orderBy: '', eventID: 1887988 }, SERVICE.GET_REGS_BY_EVENTID )
-    .then((result) => {
-        reqEmitter.emit('received', result);
-    })
-		.catch((e) => {
-			reqEmitter.emit('error', e);
-		})
 
-Get All Events 
-*/
-
-regOnlineReq({ filter: '', orderBy: ''}, SERVICE.GET_EVENTS )
-    .then((result) => {
-        reqEmitter.emit('received', result.ResultsOfListOfEvent.Data.APIEvent);
-    })
-		.catch((e) => {
-			reqEmitter.emit('error', e);
-		})
