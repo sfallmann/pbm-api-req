@@ -1,11 +1,10 @@
+'use strict'
 const axios = require('axios');
 const qs = require('querystring');
 const parseString = require('xml2js').parseString;
 
 const {HOST} = require('../helper/constants.json').REGONLINE;
 const {TOKEN} = require('../config/config.json').REGONLINE;
-
-let events2017 = []
 
 const regOnlineSOAP = (form, service) => {
 	return	axios({
