@@ -1,15 +1,45 @@
 'use strict'
-const EventEmitter = require('events');
-
 require('./config/config');
 const {SERVICE} = require('./helper/constants.json').REGONLINE;
 const regOnlineReq = require('./regonline/requests');
 const Event = require('./model/event');
-const mongoose = require('./db/mongoose');
 
-const reqEmitter = new EventEmitter();
+function regOnlineDO(){
+
+  const data = {
+  }
+
+  const actions = {
+    GetEvents: function(callback){
+
+      if (data.events !== undefined){
+        callback(null, data.events);
+      } else {
+        regOnlineReq({ filter: '', orderBy: ''}, SERVICE.GET_EVENTS )
+          .then((result) => {
+            data.events = result.ResultsOfListOfEvent.Data.APIEvent;
+            callback(null, data.events);
+          })
+          .catch((e) => {
+            callback(e);
+          })
+      }
+
+    }
+  }
+
+  return {
+    actions
+  }
+}
+
+const regO = regOnlineDO();
+regO.actions.GetEvents((err, result) => {
+  console.log(result);
+});
 
 
+/*
 regOnlineReq({ filter: '', orderBy: ''}, SERVICE.GET_EVENTS )
   .then((result) => {
       reqEmitter.emit('eventsReceived', result.ResultsOfListOfEvent.Data.APIEvent);
@@ -53,3 +83,4 @@ reqEmitter.on('error', (error) => {
 })
 
 
+*/

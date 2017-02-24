@@ -11,7 +11,7 @@ const regOnlineSOAP = (form, service) => {
 		method: 'POST',
 		url: HOST + service,
 		data: qs.stringify(form),
-        timeout: 6000,
+        timeout: 10000,
 		headers: {
 			'APIToken': TOKEN,
 			'Content-Type': 'application/x-www-form-urlencoded'
