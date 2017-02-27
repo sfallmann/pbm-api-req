@@ -3,7 +3,7 @@
         "HOST": "https://www.regonline.com/api/default.asmx/",
         "SERVICE": {
             "GET_EVENTS": "GetEvents",
-            "GET_REGS_BY_EVENTID": "GetRegistrationsByEventID",
+            "GET_REGS": "GetRegistrations",
             "GET_REGS_FOR_EVENT": "GetRegistrationsForEvent",
             "GET_EVENT": "GetEvent"
         }

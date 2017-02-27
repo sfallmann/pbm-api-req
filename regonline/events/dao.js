@@ -15,7 +15,7 @@ function RegonlineDAO() {
     return regonlineReqs(form, service.GET_EVENT)
       .then((result) => {
         const event = result.ResultsOfListOfEvent.Data.APIEvent;
-        Promise.resolve(event);
+        return Promise.resolve(event);
       });
   };
 
@@ -28,6 +28,17 @@ function RegonlineDAO() {
         return Promise.resolve(events);
       });
   };
+
+  // Returns a Promise with the requested Event Registrations
+  this.getRegsForEvent = (form) => {
+    return regonlineReqs(form, service.GET_REGS_FOR_EVENT)
+      .then((result) => {
+        const event = result.ResultsOfListOfRegistration.Data.APIRegistration;
+        return Promise.resolve(event);
+      });
+  };
+
+  // TODO https://www.regonline.com/api/default.asmx/GetRegistrations
 
   // Returns a Promise with the results of the insert
   this.insertEventsToDB = (form) => {
@@ -47,7 +58,7 @@ function RegonlineDAO() {
     });
   };
 
-  // Returns a Promise with the results of the updates
+  // Returns a Promise with the results of the upsert
   this.upsertEventsToDB = (form) => {
     return conn.then((db) => {
       const promises = [];
@@ -70,9 +81,15 @@ function RegonlineDAO() {
         });
     });
   };
+
 };
 
 const dao = new RegonlineDAO();
+
+dao.getRegsForEvent({filter: '', orderBy: '', eventID: 1811687})
+  .then((result) => {
+    console.log(result);
+  });
 
 module.exports = dao;
 
