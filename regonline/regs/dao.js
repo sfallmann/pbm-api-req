@@ -1,5 +1,5 @@
 'use strict';
-const conn = require('../../db/connect');
+const {conn, getDb} = require('../../db/connect');
 const regonlineReqs = require('../../regonline/requests');
 const service = require('../../helper/constants').REGONLINE.SERVICE;
 const DOFactory = require('../../helper/utils').DataObjectFactory;
@@ -13,27 +13,82 @@ const RegsDAO = () => {
     return regonlineReqs(form, service.GET_REGS_FOR_EVENT)
       .then((result) => {
         const regs = result.ResultsOfListOfRegistration.Data.APIRegistration;
-        return regs;
+        if (regs) {
+          return regs;
+        }
       });
   };
+
+  function returnCollection(name){
+    return conn.then((db) => {
+      return db.collection(name).find({});
+    });
+  }
+
+  function iterateCollection(cursor){
+    return new Promise((resolve, reject) => {
+      cursor.toArray((err, docs) => {
+        if (err) {
+          reject(err);
+        }
+        resolve(docs);
+      });
+    });
+  };
+
+  returnCollection('regonlineRegs')
+  .then(iterateCollection)
+  .then((result) => {
+    console.log(result)
+  })
 
   function upsertRegsForEvent(form) {
 
     return conn.then((db) => {
-      return db.collection('regonlineEvents').find({})
+      return db.collection('regonlineEvents').find({});
     })
     .then((cursor) => {
-        return new Promise ((resolve, reject) => {
-          cursor.forEach((doc) => {
-            console.log(doc)
-            getRegsForEvent({filter: '', orderBy: '', eventID: doc.ID})
-              .then((result) => {
-                console.log(result);
-              })
-          });
+      //const arr = []
+      return new Promise((resolve, reject) => {
+        cursor.toArray((err, docs) => {
+          if (err) {
+            reject(err);
+          }
+          resolve(docs);
         });
+      });
     })
-
+    .then((docs) => {
+      const promises = [];
+      docs.forEach((doc) => {
+        promises.push(getRegsForEvent({filter: '', orderBy: '', eventID: doc.ID}));
+      });
+      return Promise.all(promises);
+    })
+    .then((regs) => {
+      return conn.then((db) => {
+        const promises = [];
+        regs.forEach((regArr) => {
+          if (typeof regArr !== 'undefined'){
+            regArr.forEach((reg) => {
+              if (typeof reg === 'object'){
+                promises.push(
+                  db.collection('regonlineRegs')
+                    .updateOne({ID: reg.ID},reg,{upsert: true})
+                    .then((result) => {
+                      return result;
+                    })
+                );
+              }
+            });
+          }
+        });
+        return Promise.all(promises);
+      });
+    })
+    .then((result) => {
+      console.log(result)
+    })
   }
 
   return {
@@ -43,7 +98,9 @@ const RegsDAO = () => {
 
 };
 
-const dao = RegsDAO();
-dao.upsertRegsForEvent();
-module.exports = dao;
+
+
+
+
+module.exports = RegsDAO();
 
