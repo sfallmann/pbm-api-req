@@ -1,5 +1,5 @@
 'use strict';
-const conn = require('../../db/connect');
+const {conn} = require('../../db/connect');
 const regonlineReqs = require('../../regonline/requests');
 const service = require('../../helper/constants').REGONLINE.SERVICE;
 const DOFactory = require('../../helper/utils').DataObjectFactory;
@@ -91,5 +91,6 @@ dao.insertEventsToDB({filter: '', orderBy: ''})
   .catch((e) => {
     console.log(e);
   })
+
 module.exports = dao;
 

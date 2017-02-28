@@ -1,26 +1,31 @@
 const type = require('../../helper/utils').type;
 
-const EventSchema = {
+const RegSchema = {
   ID: type.isNumber,
-  CustomerID: type.isNumber,
+  EventID: type.isNumber,
+  GroupID: type.isNumber,
+  RegTypeID: type.isNumber,
+  RegistrationType: type.isString,
+  FirstName: type.isString,
+  LastName: type.isString,  
   Title: type.isString,
-  StartDate: type.isDate,
-  EndDate: type.isDate,
-  ActiveDate: type.isDate,
-  AddDate: type.isDate,
-  ModDate: type.isDate,
+  Email: type.isString,
+  Address1: type.isString,
+  Address2: type.isString,
   City: type.isString,
   State: type.isString,
-  Country: type.isString,
-  CountryCode: type.isString,
-  PostalCode: type.isString,
-  LocationName: type.isString,
-  LocationRoom: type.isString,
-  LocationPhone: type.isString,
-  LocationBuilding: type.isString,
-  LocationAddress1: type.isString,
-  LocationAddress2: type.isString,
-  TimeZone: type.isString
+  PostalCode: type.isString,  
+  BalanceDue: type.isNumber,
+  Phone: type.isString,
+  Extension: type.isString,
+  Fax: type.isString,
+  BadgeName: type.isString,
+  RoomSharerID: type.isNumber,
+  IsSubstitute: type.isBoolean,
+  AddBy: type.isString,
+  AddDate: type.isDate,
+  ModBy: type.isString,
+  ModDate: type.isDate,
 };
 
-module.exports = EventSchema;
+module.exports = RegSchema;

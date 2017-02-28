@@ -1,94 +1,63 @@
 'use strict';
-const {conn, getDb} = require('../../db/connect');
+const {conn, getDb, getCollection, iterateCollection} = require('../../db/connect');
 const regonlineReqs = require('../../regonline/requests');
 const service = require('../../helper/constants').REGONLINE.SERVICE;
+const {processApi} = require('../../helper/utils');
 const DOFactory = require('../../helper/utils').DataObjectFactory;
-//const EventSchema = require('./schema');
+const RegSchema = require('./schema');
 
 // Data Access Object for RegOnline:
 const RegsDAO = () => {
 
   // Returns a Promise with the requested Event Registrations
   function getRegsForEvent(form) {
+
     return regonlineReqs(form, service.GET_REGS_FOR_EVENT)
       .then((result) => {
         const regs = result.ResultsOfListOfRegistration.Data.APIRegistration;
         if (regs) {
           return regs;
+        } else {
+          return [];
         }
       });
   };
 
-  function returnCollection(name){
+  function upsertOneReg(doc){
     return conn.then((db) => {
-      return db.collection(name).find({});
-    });
+      return db.collection('regonlineRegs')
+        .updateOne({ID: doc.ID}, doc, {upsert: true})
+        .then((result) => {
+          return result;
+        });
+      })
   }
 
-  function iterateCollection(cursor){
-    return new Promise((resolve, reject) => {
-      cursor.toArray((err, docs) => {
-        if (err) {
-          reject(err);
-        }
-        resolve(docs);
+  function upsertAllRegs(regArrays){
+    let promises = [];
+
+    regArrays.forEach((docs) => {
+      let docsRegs = docs.map((doc) => {
+        return upsertOneReg(DOFactory(doc, RegSchema));
       });
-    });
-  };
-
-  returnCollection('regonlineRegs')
-  .then(iterateCollection)
-  .then((result) => {
-    console.log(result)
-  })
-
+      promises = promises.concat(docsRegs);
+    })
+    return Promise.all(promises);
+  }
+  
   function upsertRegsForEvent(form) {
 
-    return conn.then((db) => {
-      return db.collection('regonlineEvents').find({});
-    })
-    .then((cursor) => {
-      //const arr = []
-      return new Promise((resolve, reject) => {
-        cursor.toArray((err, docs) => {
-          if (err) {
-            reject(err);
-          }
-          resolve(docs);
-        });
-      });
-    })
-    .then((docs) => {
-      const promises = [];
-      docs.forEach((doc) => {
-        promises.push(getRegsForEvent({filter: '', orderBy: '', eventID: doc.ID}));
-      });
-      return Promise.all(promises);
-    })
-    .then((regs) => {
-      return conn.then((db) => {
-        const promises = [];
-        regs.forEach((regArr) => {
-          if (typeof regArr !== 'undefined'){
-            regArr.forEach((reg) => {
-              if (typeof reg === 'object'){
-                promises.push(
-                  db.collection('regonlineRegs')
-                    .updateOne({ID: reg.ID},reg,{upsert: true})
-                    .then((result) => {
-                      return result;
-                    })
-                );
-              }
-            });
-          }
-        });
-        return Promise.all(promises);
-      });
-    })
-    .then((result) => {
-      console.log(result)
-    })
+    function processRegs (docs){
+      const cb = (doc) => {
+        return getRegsForEvent({ filter: '', orderBy: '', eventId: doc.ID });
+      }
+      return processApi(docs, cb);
+    }
+
+    return getCollection('regonlineEvents', {})
+    .then(iterateCollection)
+    .then(processRegs) 
+    .then(upsertAllRegs)
   }
 
   return {
@@ -98,9 +67,13 @@ const RegsDAO = () => {
 
 };
 
-
-
-
-
+let dao = RegsDAO();
+dao.upsertRegsForEvent({})
+  .then((results) => {
+    console.log(results.length)
+  })
+  .catch((e) => {
+    console.log(e);
+  })
 module.exports = RegsDAO();
 

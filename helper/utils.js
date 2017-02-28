@@ -19,6 +19,8 @@ function cast(datatype, val){
     case 'date':
       return new Date(val);
       break;
+    case 'boolean':
+      return Boolean(val);
     default:
       throw new TypeError(`'${val}' is not type '${datatype}'.`);
   }
@@ -64,8 +66,18 @@ function DataObjectFactory(data, schema) {
   return obj;
 
 }
+function processApi(docs, cb){
+  const promises = [];
+  docs.forEach((doc) => {
+    promises.push(cb(doc));
+  });
+  return Promise.all(promises);
+}
 
-module.exports = {DataObjectFactory,
+
+module.exports = {
+  DataObjectFactory,
+  processApi,
   type: {
     cast,
     isBoolean,
@@ -77,3 +89,5 @@ module.exports = {DataObjectFactory,
     isSymbol
   }
 };
+
+

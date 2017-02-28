@@ -3,6 +3,7 @@ const type = require('../../helper/utils').type;
 const EventSchema = {
   ID: type.isNumber,
   CustomerID: type.isNumber,
+  Status: type.isString,
   Title: type.isString,
   StartDate: type.isDate,
   EndDate: type.isDate,
@@ -20,7 +21,8 @@ const EventSchema = {
   LocationBuilding: type.isString,
   LocationAddress1: type.isString,
   LocationAddress2: type.isString,
-  TimeZone: type.isString
+  TimeZone: type.isString,
+  IsActive: type.isBoolean
 };
 
 module.exports = EventSchema;
