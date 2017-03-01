@@ -1,27 +1,14 @@
 'use strict';
-require('../config/config');
+const {logger, emitter} = require('../config/config');
 const MongoClient = require('mongodb').MongoClient;
 const dbCon = new MongoClient();
 const connection = dbCon.connect('mongodb://localhost:27017/pbm-api-dev');
-
-'mongodb://ds157499.mlab.com:57499/pbm-api-dev'
-process.env.DB_URI
-'mongodb://localhost:27017/pbm-api-dev'
-
-function getDb() {
-  return connection
-    .then((db) => {
-      return db;
-    }, (err) => {
-      throw err;
-    });
-}
 
 function getCollection(name, query){
   return connection
     .then((db) => {
       return db.collection(name).find(query);
-    })
+    });
 }
 
 function iterateCollection(cursor){
@@ -35,11 +22,29 @@ function iterateCollection(cursor){
   });
 };
 
-module.exports = {
-  'conn': dbCon.connect('mongodb://localhost:27017/pbm-api-dev'),
-  getDb,
-  getCollection,
-  iterateCollection
+function upsertOne(doc, collection){
+  return connection.then((db) => {
+    return db.collection(collection)
+      .updateOne({ID: doc.ID}, doc, {upsert: true})
+      .then((result) => {
+        return result;
+      });
+  });
 }
 
+process.on('uncaughtException', (err) => {
+  logger.log('There was an uncaught error', err);
+
+  conn.then((db) => {
+    db.close();
+    process.exit(1);
+  });
+});
+
+module.exports = {
+  'conn': connection,
+  getCollection,
+  iterateCollection,
+  upsertOne
+};
 

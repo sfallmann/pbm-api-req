@@ -1,3 +1,5 @@
+const {emitter} = require('../config/config');
+
 function cast(datatype, val){
 
   if (val === undefined && datatype === 'string'){
@@ -22,7 +24,9 @@ function cast(datatype, val){
     case 'boolean':
       return Boolean(val);
     default:
-      throw new TypeError(`'${val}' is not type '${datatype}'.`);
+      emitter.emit('error',
+        new TypeError(`'${val}' is not type '${datatype}'.`)
+      );
   }
 
 }
@@ -66,7 +70,7 @@ function DataObjectFactory(data, schema) {
   return obj;
 
 }
-function processApi(docs, cb){
+function processApiArray(docs, cb){
   const promises = [];
   docs.forEach((doc) => {
     promises.push(cb(doc));
@@ -77,7 +81,7 @@ function processApi(docs, cb){
 
 module.exports = {
   DataObjectFactory,
-  processApi,
+  processApiArray,
   type: {
     cast,
     isBoolean,

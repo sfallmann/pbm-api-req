@@ -1,9 +1,12 @@
 'use strict';
-const {conn} = require('../../db/connect');
+const {emitter} = require('../../config/config');
 const regonlineReqs = require('../../regonline/requests');
 const service = require('../../helper/constants').REGONLINE.SERVICE;
+const {processApiArray} = require('../../helper/utils');
 const DOFactory = require('../../helper/utils').DataObjectFactory;
 const EventSchema = require('./schema');
+const {conn,getCollection,iterateCollection,upsertOne}
+  = require('../../db/connect');
 
 // Data Access Object for RegOnline:
 const EventsDAO = () => {
@@ -28,25 +31,40 @@ const EventsDAO = () => {
       });
   };
 
-  // TODO https://www.regonline.com/api/default.asmx/GetRegistrations
+  function processEvents(events){
+    return events.map((event) => {
+      return DOFactory(event, EventSchema);
+    });
+  };
+
+  function insertEvents(docs){
+    return conn.then((db) => {
+      return db.collection('regonlineEvents').insertMany(docs);
+    });
+  };
+
+  function upsertOneEvent(doc) {
+    return upsertOne(doc, 'regonlineEvents');
+  };
+
+  function upsertAllEvents(eventsArr) {
+    let promises = [];
+
+    eventsArr.forEach((doc) => {
+      promises.push(upsertOneEvent(DOFactory(doc, EventSchema)));
+    });
+
+    return Promise.all(promises);
+  };
 
   // Returns a Promise with the results of the insert
   function insertEventsToDB(form) {
 
     return getEvents(form)
-      .then((events) => {
-        events = events.map((event) => {
-          return DOFactory(event, EventSchema);
-        });
-
-        return conn.then((db) => {
-          console.log(db);
-          return db.collection('regonlineEvents')
-            .insertMany(events)
-            .then((result) => {
-              return result;
-            });
-        });
+      .then(processEvents)
+      .then(insertEvents)
+      .then((result) => {
+        return result;
       });
   };
 
@@ -54,24 +72,7 @@ const EventsDAO = () => {
   function upsertEventsToDB(form) {
 
     return getEvents(form)
-      .then((events) => {
-        events = events.map((event) => {
-          return DOFactory(event, EventSchema);
-        });
-        return conn.then((db) => {
-          const promises = [];
-          events.forEach((event) => {
-            promises.push(
-            db.collection('regonlineEvents')
-              .updateOne({ID: event.ID},event,{upsert: true})
-              .then((result) => {
-                return result;
-              })
-            );
-          });
-          return Promise.all(promises);
-        })
-      })
+      .then(upsertAllEvents);
   };
 
   return {
@@ -79,18 +80,18 @@ const EventsDAO = () => {
     getEvents,
     insertEventsToDB,
     upsertEventsToDB
-  }
+  };
 
 };
 
 const dao = EventsDAO();
-dao.insertEventsToDB({filter: '', orderBy: ''})
-  .then((doc) => {
-    console.log(doc)
+
+dao.upsertEventsToDB({filter: '', orderby: ''})
+  .then((results) => {
+    console.log(results);
   })
-  .catch((e) => {
-    console.log(e);
+  .catch((err) => {
+    console.log(err);
   })
 
 module.exports = dao;
-
