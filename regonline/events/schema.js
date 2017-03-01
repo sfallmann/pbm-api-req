@@ -1,3 +1,4 @@
+'use strict';
 const type = require('../../helper/utils').type;
 
 const EventSchema = {

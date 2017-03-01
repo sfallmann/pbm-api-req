@@ -5,7 +5,7 @@ const service = require('../../helper/constants').REGONLINE.SERVICE;
 const {processApiArray} = require('../../helper/utils');
 const DOFactory = require('../../helper/utils').DataObjectFactory;
 const EventSchema = require('./schema');
-const {conn,getCollection,iterateCollection,upsertOne}
+const {connection,queryCollection,toArray,upsertOne}
   = require('../../db/connect');
 
 // Data Access Object for RegOnline:
@@ -38,7 +38,7 @@ const EventsDAO = () => {
   };
 
   function insertEvents(docs){
-    return conn.then((db) => {
+    return connection.then((db) => {
       return db.collection('regonlineEvents').insertMany(docs);
     });
   };

@@ -4,7 +4,7 @@ const service = require('../../helper/constants').REGONLINE.SERVICE;
 const {processApiArray} = require('../../helper/utils');
 const DOFactory = require('../../helper/utils').DataObjectFactory;
 const RegSchema = require('./schema');
-const {conn,getCollection,iterateCollection,upsertOne}
+const {connection,queryCollection,toArray,upsertOne}
   = require('../../db/connect');
 
 // Data Access Object for RegOnline:
@@ -49,8 +49,8 @@ const RegsDAO = () => {
 
   function upsertRegsForEvent(form, project) {
 
-    return getCollection('regonlineEvents', form, project)
-    .then(iterateCollection)
+    return queryCollection('regonlineEvents', form, project)
+    .then(toArray)
     .then(processRegs) 
     .then(upsertAllRegs);
   }
