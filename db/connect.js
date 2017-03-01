@@ -4,10 +4,11 @@ const MongoClient = require('mongodb').MongoClient;
 const dbCon = new MongoClient();
 const connection = dbCon.connect('mongodb://localhost:27017/pbm-api-dev');
 
-function getCollection(name, query){
+function getCollection(name, query, project) {
+  project = project || {};
   return connection
     .then((db) => {
-      return db.collection(name).find(query);
+      return db.collection(name).find(query).project(project);;
     });
 }
 
@@ -47,4 +48,3 @@ module.exports = {
   iterateCollection,
   upsertOne
 };
-

@@ -1,5 +1,4 @@
 'use strict';
-const {conn, getCollection, iterateCollection} = require('../../db/connect');
 const regonlineReqs = require('../../regonline/requests');
 const service = require('../../helper/constants').REGONLINE.SERVICE;
 const {processApiArray} = require('../../helper/utils');
@@ -36,11 +35,11 @@ const RegsDAO = () => {
     return upsertOne(doc, 'regonlineRegs');
   }
 
-  function upsertAllRegs(regArrays) {
+  function upsertAllRegs(regsArrays) {
     let promises = [];
 
-    regArrays.forEach((docs) => {
-      let docsRegs = docs.map((doc) => {
+    regsArrays.forEach((eventRegs) => {
+      let docsRegs = eventRegs.map((doc) => {
         return upsertOneReg(DOFactory(doc, RegSchema));
       });
       promises = promises.concat(docsRegs);
@@ -48,9 +47,9 @@ const RegsDAO = () => {
     return Promise.all(promises);
   }
 
-  function upsertRegsForEvent(form) {
+  function upsertRegsForEvent(form, project) {
 
-    return getCollection('regonlineEvents', form)
+    return getCollection('regonlineEvents', form, project)
     .then(iterateCollection)
     .then(processRegs) 
     .then(upsertAllRegs);
@@ -63,8 +62,6 @@ const RegsDAO = () => {
 };
 
 const dao = RegsDAO();
-
-dao.upsertRegsForEvent({});
 
 module.exports = RegsDAO();
 

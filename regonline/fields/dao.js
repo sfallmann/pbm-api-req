@@ -4,13 +4,13 @@ const regonlineReqs = require('../../regonline/requests');
 const service = require('../../helper/constants').REGONLINE.SERVICE;
 const {processApiArray} = require('../../helper/utils');
 const DOFactory = require('../../helper/utils').DataObjectFactory;
-const EventSchema = require('./schema');
+const FieldSchema = require('./schema');
 const {conn,getCollection,iterateCollection,upsertOne}
   = require('../../db/connect');
 
 // Data Access Object for RegOnline:
-const EventsDAO = () => {
-
+const FieldDAO = () => {
+  // GetCustomFields
   // Returns a Promise with the requested Event
   function getEvent(form) {
 
@@ -81,14 +81,6 @@ const EventsDAO = () => {
 
 };
 
-const dao = EventsDAO();
-
-dao.upsertEventsToDB({filter: '', orderby: ''})
-  .then((results) => {
-    console.log(results);
-  })
-  .catch((err) => {
-    console.log(err);
-  })
+const dao = FieldsDAO();
 
 module.exports = dao;
