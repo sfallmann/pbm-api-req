@@ -4,11 +4,15 @@ const service = require('../../helper/constants').REGONLINE.SERVICE;
 const {processApiArray} = require('../../helper/utils');
 const DOFactory = require('../../helper/utils').DataObjectFactory;
 const RegSchema = require('./schema');
+const {Collection} = require('../../db/collection');
+const {Events} = require('../events/dao');
 const {connection,queryCollection,toArray,upsertOne}
   = require('../../db/connect');
 
 // Data Access Object for RegOnline:
 const RegsDAO = () => {
+
+  const Regs = new Collection('regonlineRegs');
 
   // Returns a Promise with the requested Event Registrations
   function getRegsForEvent(form) {
@@ -16,8 +20,10 @@ const RegsDAO = () => {
     return regonlineReqs(form, service.GET_REGS_FOR_EVENT)
       .then((result) => {
         const regs = result.ResultsOfListOfRegistration.Data.APIRegistration;
-        if (regs) {
+        if (regs instanceof Array) {
           return regs;
+        } else if (regs instanceof Object){
+          return [regs];
         } else {
           return [];
         }
@@ -26,13 +32,9 @@ const RegsDAO = () => {
 
   function processRegs(docs) {
     const cb = (doc) => {
-      return getRegsForEvent({filter: '', orderBy: '', eventId: doc.ID});
+      return getRegsForEvent({filter: '', orderBy: '', eventID: doc.ID});
     }
     return processApiArray(docs, cb);
-  }
-
-  function upsertOneReg(doc) {
-    return upsertOne(doc, 'regonlineRegs');
   }
 
   function upsertAllRegs(regsArrays) {
@@ -40,17 +42,15 @@ const RegsDAO = () => {
 
     regsArrays.forEach((eventRegs) => {
       let docsRegs = eventRegs.map((doc) => {
-        return upsertOneReg(DOFactory(doc, RegSchema));
+        return Regs.updateOne({ID: doc.ID}, DOFactory(doc, RegSchema));
       });
       promises = promises.concat(docsRegs);
     });
     return Promise.all(promises);
   }
 
-  function upsertRegsForEvent(form, project) {
-
-    return queryCollection('regonlineEvents', form, project)
-    .then(toArray)
+  function upsertRegsForEvent(doc, project) {
+    return Events.find(doc, project).toArray()
     .then(processRegs) 
     .then(upsertAllRegs);
   }

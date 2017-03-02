@@ -5,7 +5,8 @@
             "GET_EVENTS": "GetEvents",
             "GET_REGS": "GetRegistrations",
             "GET_REGS_FOR_EVENT": "GetRegistrationsForEvent",
-            "GET_EVENT": "GetEvent"
+            "GET_EVENT": "GetEvent",
+            "GET_CUSTOM_FIELDS": "GetCustomFields"
         }
     }
 }

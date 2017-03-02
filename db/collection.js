@@ -13,7 +13,10 @@ class Collection{
     doc = doc || {};
     project = project || {};
 
-    const cursor = getCursor(collection(this.name), doc, project);
+    const cursor = connection
+                    .then((db) => {
+                      return db.collection(this.name).find(doc, project);
+                    });
 
     const obj = {
       cursor: Promise.resolve(cursor),
@@ -67,17 +70,6 @@ class Collection{
         return db.collection(this.name).updateOne(filter, doc, options);
       });
   }
-}
-
-function collection(name) {
-  return connection
-    .then((db) => {
-      return db.collection(name);
-    });
-}
-
-function getCursor(collection, doc, project) {
-  return collection.find(doc, project);
 }
 
 function project(results) {

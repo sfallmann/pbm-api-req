@@ -11,19 +11,14 @@ if (env === 'development' || env === 'test') {
   });
 }
 
+class Emitter extends EventEmitter {}
+const emitter = new Emitter();
 
 /*
-const debug = require('debug')('pbm-debug');
-const name = 'pbm-api-req';
-const winston = require('winston');
-
-const logger = new (winston.Logger)//({exitOnError: false});
 process.on('unhandledRejection', function(reason, promise) {
   logger.error('Unhandled rejection', {reason: reason, promise: promise});
 });
 
-debug('booting %s', name);
-*/
 
 class Emitter extends EventEmitter {}
 const emitter = new Emitter();
@@ -31,9 +26,9 @@ emitter.on('error', (err) => {
   logger.error('Unexpected error on emitter', err);
 });
 
-logger = console;
 
+*/
 module.exports = {
-  logger,
+  logger:  console,
   emitter
 };

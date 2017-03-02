@@ -5,82 +5,72 @@ const service = require('../../helper/constants').REGONLINE.SERVICE;
 const {processApiArray} = require('../../helper/utils');
 const DOFactory = require('../../helper/utils').DataObjectFactory;
 const FieldSchema = require('./schema');
+const {Collection} = require('../../db/collection');
+const {Events} = require('../events/dao');
 const {conn,getCollection,iterateCollection,upsertOne}
   = require('../../db/connect');
 
 // Data Access Object for RegOnline:
-const FieldDAO = () => {
-  // GetCustomFields
+const FieldsDAO = () => {
+
+  const Fields = new Collection('regonlineFields');
   // Returns a Promise with the requested Event
-  function getEvent(form) {
+  function getFieldsForEvent(form) {
 
-    return regonlineReqs(form, service.GET_EVENT)
+    return regonlineReqs(form, service.GET_CUSTOM_FIELDS)
       .then((result) => {
-        const event = result.ResultsOfListOfEvent.Data.APIEvent;
-        return event;
-      });
+        const fields = result.ResultsOfListOfCustomField.Data.APICustomField;
+        if (fields instanceof Array) {
+          console.log(fields instanceof Array)
+          return fields;
+        } else if (fields instanceof Object) {
+          return[fields];
+        } else {
+          return [];
+        }
+      });           
   };
 
-  // Returns a Promise with the requested Events
-  function getEvents(form) {
+  function processFields(docs) {
+    const cb = (doc) => {
+      return getFieldsForEvent({pageSectionID: 1, orderBy: '', eventID: doc.ID});
+    }
+    return processApiArray(docs, cb);
+  }
 
-    return regonlineReqs(form, service.GET_EVENTS)
-      .then((result) => {
-        const events = result.ResultsOfListOfEvent.Data.APIEvent;
-        return events;
-      });
-  };
-
-  function processEvents(events){
-    return events.map((event) => {
-      return DOFactory(event, EventSchema);
-    });
-  };
-
-  function insertEvents(docs){
-    return conn.then((db) => {
-      return db.collection('regonlineEvents').insertMany(docs);
-    });
-  };
-
-  function upsertOneEvent(doc) {
-    return upsertOne(doc, 'regonlineEvents');
-  };
-
-  function upsertAllEvents(eventsArray) {
+  function upsertAllFields(fieldsArray) {
     let promises = [];
+    console.log(fieldsArray)
+    fieldsArray.forEach((eventFields) => {
 
-    eventsArray.forEach((doc) => {
-      promises.push(upsertOneEvent(DOFactory(doc, EventSchema)));
+      let docsFields = eventFields.map((doc) => {
+        return Fields.updateOne({ID: doc.ID}, DOFactory(doc, FieldSchema), {upsert: true});
+      });
+
+      promises = promises.concat(docsFields);
     });
-
     return Promise.all(promises);
-  };
+  }
 
-  // Returns a Promise with the results of the insert
-  function insertEventsToDB(form) {
-
-    return getEvents(form)
-      .then(processEvents)
-      .then(insertEvents);
-  };
-
-  // Returns a Promise with the results of the upsert
-  function upsertEventsToDB(form) {
-
-    return getEvents(form)
-      .then(upsertAllEvents);
-  };
+  function upsertFieldsForEvent(doc, project) {
+    return Events.find(doc, project).toArray()
+    .then(processFields) 
+    .then(upsertAllFields);
+  }
 
   return {
-    getEvent,
-    getEvents,
-    insertEventsToDB,
-    upsertEventsToDB
+    getFieldsForEvent,
+    upsertFieldsForEvent
   };
 
 };
 
 const dao = FieldsDAO();
+
+dao.upsertFieldsForEvent({}, {ID: 1})
+.then((results) => {
+  console.log(results.length)
+})
+.catch(console.log)
 
 module.exports = dao;

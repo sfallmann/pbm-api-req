@@ -5,7 +5,6 @@ const dbCon = new MongoClient();
 const connection = dbCon.connect('mongodb://localhost:27017/pbm-api-dev');
 
 
-
 function queryCollection(collection, query, project) {
   project = project || {};
   return connection
