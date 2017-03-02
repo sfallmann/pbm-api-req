@@ -5,12 +5,17 @@ const service = require('../../helper/constants').REGONLINE.SERVICE;
 const {processApiArray} = require('../../helper/utils');
 const DOFactory = require('../../helper/utils').DataObjectFactory;
 const EventSchema = require('./schema');
+const {Collection} = require('../../db/collection');
 const {connection,queryCollection,toArray,upsertOne}
   = require('../../db/connect');
+
+
+
 
 // Data Access Object for RegOnline:
 const EventsDAO = () => {
 
+  const Events = new Collection('regonlineEvents');
   // Returns a Promise with the requested Event
   function getEvent(form) {
 
@@ -32,26 +37,17 @@ const EventsDAO = () => {
   };
 
   function processEvents(events){
-    return events.map((event) => {
+    return events.map(function(event){
       return DOFactory(event, EventSchema);
     });
-  };
-
-  function insertEvents(docs){
-    return connection.then((db) => {
-      return db.collection('regonlineEvents').insertMany(docs);
-    });
-  };
-
-  function upsertOneEvent(doc) {
-    return upsertOne(doc, 'regonlineEvents');
   };
 
   function upsertAllEvents(eventsArray) {
     let promises = [];
 
     eventsArray.forEach((doc) => {
-      promises.push(upsertOneEvent(DOFactory(doc, EventSchema)));
+      promises.push(Events
+        .updateOne({ID: doc.ID}, DOFactory(doc, EventSchema), {upsert: true}));
     });
 
     return Promise.all(promises);
@@ -62,7 +58,7 @@ const EventsDAO = () => {
 
     return getEvents(form)
       .then(processEvents)
-      .then(insertEvents);
+      .then(Events.insertMany.bind(Events));
   };
 
   // Returns a Promise with the results of the upsert
@@ -73,6 +69,7 @@ const EventsDAO = () => {
   };
 
   return {
+    Events,
     getEvent,
     getEvents,
     insertEventsToDB,
@@ -82,13 +79,5 @@ const EventsDAO = () => {
 };
 
 const dao = EventsDAO();
-
-dao.upsertEventsToDB({filter: '', orderby: ''})
-  .then((results) => {
-    console.log(results);
-  })
-  .catch((err) => {
-    console.log(err);
-  })
 
 module.exports = dao;

@@ -4,70 +4,95 @@ const {connection,queryCollection,toArray,upsertOne}
 
 class Collection{
 
-  constructor(name){
+  constructor(name) {
     this.name = name;
   }
 
-  collection(){
-    return connection
-      .then((db) => {
-        return db.collection(this.name);
-      });
-  }
+  find(doc, project) {
 
-  find(query, project) {
-
-    query = query || {};
+    doc = doc || {};
     project = project || {};
 
-    const cursor = this.collection()
-                    .then((collection) => {
-                      return collection.find(query, project);
-                    })
+    const cursor = getCursor(collection(this.name), doc, project);
+
     const obj = {
       cursor: Promise.resolve(cursor),
       toArray:  () => {
-        return cursor.then(toArray);
+        return obj.cursor.then(toArray);
       },
       project: (doc) => {
-        obj.cursor = obj.cursor.then((cursor) => {
-         return cursor.project(doc);
-        });
+        obj.cursor = obj.cursor.then(project);
         return obj;
       },
       count:  () => {
-        return obj.cursor.then((cursor) => {
-         return cursor.count();
-        });
+        return obj.cursor.then(count);
       },
       explain: () => {
-        return obj.cursor.then((cursor) => {
-         return cursor.explain();
-        });
+        return obj.cursor.then(explain);
       }
 
     }
     return obj;
   }
 
-  drop(options) {
 
+  drop(options) {
     options = options || {};
-    return this.collection()
-      .then((collection) => {
-        return collection.drop(options);
+    return connection
+      .then((db) => {
+        return db.collection(this.name).drop(options);
       });
   }
-  createIndex(spec, options){
-    if (typeof spec != 'object'){
-      throw new TypeError('"createIndex" spec must be an object');
-    }
+
+  createIndex(spec, options) {
     options = options || {};
-    return this.collection()
-      .then((collection) => {
-        return collection.createIndex(spec, options);
-      })
+    return connection
+      .then((db) => {
+        return db.collection(this.name).createIndex(spec, options);
+      });
   }
 
+  insertMany(docs, options) {
+    options = options || {};
+    return connection
+      .then((db) => {
+        return db.collection(this.name).insertMany(docs, options);
+      });
+  }
+
+  updateOne(filter, doc, options){
+    options = options || {};
+    return connection
+      .then((db) => {
+        return db.collection(this.name).updateOne(filter, doc, options);
+      });
+  }
 }
+
+function collection(name) {
+  return connection
+    .then((db) => {
+      return db.collection(name);
+    });
+}
+
+function getCursor(collection, doc, project) {
+  return collection.find(doc, project);
+}
+
+function project(results) {
+  return results.project(doc);
+}
+
+function count(results) {
+  return results.count();
+}
+
+function explain(results) {
+  return results.explain();
+};
+
+module.exports = {
+  Collection
+};
 
