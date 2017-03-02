@@ -9,9 +9,6 @@ const {Collection} = require('../../db/collection');
 const {connection,queryCollection,toArray,upsertOne}
   = require('../../db/connect');
 
-
-
-
 // Data Access Object for RegOnline:
 const EventsDAO = () => {
 

@@ -40,7 +40,6 @@ const FieldsDAO = () => {
 
   function upsertAllFields(fieldsArray) {
     let promises = [];
-    console.log(fieldsArray)
     fieldsArray.forEach((eventFields) => {
 
       let docsFields = eventFields.map((doc) => {

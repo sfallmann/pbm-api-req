@@ -2,8 +2,7 @@
 const {logger, emitter} = require('../config/config');
 const MongoClient = require('mongodb').MongoClient;
 const dbCon = new MongoClient();
-const connection = dbCon.connect('mongodb://localhost:27017/pbm-api-dev');
-
+const connection = dbCon.connect(process.env.DB_URI);
 
 function queryCollection(collection, query, project) {
   project = project || {};
@@ -35,16 +34,6 @@ function upsertOne(doc, collection, options){
   });
 }
 
-
-
-process.on('uncaughtException', (err) => {
-  logger.log('There was an uncaught error', err);
-
-  connection.then((db) => {
-    db.close();
-    process.exit(1);
-  });
-});
 
 module.exports = {
   connection,

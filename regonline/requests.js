@@ -2,9 +2,15 @@
 const axios = require('axios');
 const qs = require('querystring');
 const parseString = require('xml2js').parseString;
-
-const {HOST} = require('../helper/constants.json').REGONLINE;
 const {TOKEN} = require('../config/config.json').REGONLINE;
+
+let HOST;
+
+if (process.env.NODE_ENV = 'test'){
+  HOST = 'http://regonline.getsandbox.com/';
+} else {
+  HOST = require('../helper/constants.json').REGONLINE.HOST;
+}
 
 const regOnlineSOAP = (form, service) => {
   return	axios({
