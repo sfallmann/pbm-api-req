@@ -19,7 +19,7 @@ const FieldsDAO = () => {
 
     return regonlineReqs(form, service.GET_CUSTOM_FIELDS)
       .then((result) => {
-        const fields = result.ResultsOfListOfCustomField.Data.APICustomField;
+        const fields = result.data.ResultsOfListOfCustomField.Data.APICustomField;
         if (fields instanceof Array) {
           console.log(fields instanceof Array)
           return fields;

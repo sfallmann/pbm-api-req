@@ -6,7 +6,7 @@ const {TOKEN} = require('../config/config.json').REGONLINE;
 
 let HOST;
 
-if (process.env.NODE_ENV = 'test'){
+if (process.env.NODE_ENV === 'test' || process.env.NODE_ENV === 'development'){
   HOST = 'http://regonline.getsandbox.com/';
 } else {
   HOST = require('../helper/constants.json').REGONLINE.HOST;
@@ -25,15 +25,16 @@ const regOnlineSOAP = (form, service) => {
   });
 };
 
-const parseXML = (xml) => {
+const parseXML = (res) => {
   return new Promise((resolve, reject) => {
-    parseString(xml.data,
+    parseString(res.data,
       {explicitArray: false, ignoreAttrs: true},
       (err, result) => {
         if (err) {
           reject(err);
         }
-        resolve(result);
+        res.data = result;
+        resolve(res);
       });
   });
 }

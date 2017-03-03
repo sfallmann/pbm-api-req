@@ -19,7 +19,7 @@ const RegsDAO = () => {
 
     return regonlineReqs(form, service.GET_REGS_FOR_EVENT)
       .then((result) => {
-        const regs = result.ResultsOfListOfRegistration.Data.APIRegistration;
+        const regs = result.data.ResultsOfListOfRegistration.Data.APIRegistration;
         if (regs instanceof Array) {
           return regs;
         } else if (regs instanceof Object){
