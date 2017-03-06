@@ -28,7 +28,7 @@ const EventsDAO = () => {
 
     return regonlineReqs(form, service.GET_EVENTS)
       .then((result) => {
-        const events = result.ResultsOfListOfEvent.Data.APIEvent;
+        const events = result.data.ResultsOfListOfEvent.Data.APIEvent;
         return events;
       });
   };
