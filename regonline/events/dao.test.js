@@ -4,51 +4,52 @@ const dao = require('./dao.js');
 const roReq = require('../requests');
 const {connection} = require('../../db/connect');
 
-
-
 describe('Event Data Access Object (EventDAO)', () => {
+  before(function() {
+    return connection
+      .then(function(db) {
+        return db.dropDatabase();
+      });
+  });
 
+  it('should upsert to db Events requested from RegOnline API', function(){
 
+      const eventIDs = []
 
-
-
-  it('should upsert to db Events requested from RegOnline API', function(done){
-    connection
-      .then((db) => {
-        db.dropDatabase();
-
-        dao.upsertEventsToDB({filter: '', orderBy: ''})
-          .then((results) => {
-            expect(results.length).toBe(5);
-            done();
-            let eventIDs = [];
-
-            roReq({filter: '', orderBy: ''}, service.GET_EVENTS)
-              .then((res) => {
-                const events = res.data.ResultsOfListOfEvent.Data.APIEvent;
-                events.forEach((event) => {
-                  eventIDs.push(event.ID);
-                });
-
-                db.collection('regonlineEvents').find({}).toArray((err, data) => {
-                  if (err){
-                    done(err);
-                    return;
-                  }
-                  let dbeventIDs = [];
-                  data.forEach((event) => {
-                    dbeventIDs.push(event.ID);
-                  });
-                  expect(dbeventIDs).toMatch([])
-                  done();
-                })
-
-              })          
+      return dao.upsertEventsToDB({filter: '', orderBy: ''})
+        .then((results) => {
+          expect(results.length).toBe(5);
+          return;
+        })
+        .then(() => {
+          return roReq({filter: '', orderBy: ''}, service.GET_EVENTS);
+        })
+        .then((res) => {
+          const events = res.data.ResultsOfListOfEvent.Data.APIEvent;
+          events.forEach((event) => {
+            eventIDs.push(Number(event.ID));
+          })
+          return connection;
+        })
+        .then((db) => {
+          return db.collection('regonlineEvents').find({});
+        })
+        .then((cursor) => {
+          return new Promise((resolve, reject) => {
+            cursor.toArray((err, result) => {
+              if (err){
+                reject(err);
+              }
+              resolve(result);
             })
-    })
-    .catch((e) => {
-      done(e);
-    });
-   
+          })
+        })
+        .then((result) => {
+          result.forEach((event) => {
+            expect(eventIDs).toInclude(event.ID);
+          });
+        })
   });
 });
+
+
