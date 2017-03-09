@@ -21,7 +21,6 @@ const FieldsDAO = () => {
       .then((result) => {
         const fields = result.data.ResultsOfListOfCustomField.Data.APICustomField;
         if (fields instanceof Array) {
-          console.log(fields instanceof Array)
           return fields;
         } else if (fields instanceof Object) {
           return[fields];
@@ -65,11 +64,5 @@ const FieldsDAO = () => {
 };
 
 const dao = FieldsDAO();
-
-dao.upsertFieldsForEvent({}, {ID: 1})
-.then((results) => {
-  console.log(results.length)
-})
-.catch(console.log)
 
 module.exports = dao;

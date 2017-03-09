@@ -42,7 +42,7 @@ const RegsDAO = () => {
 
     regsArrays.forEach((eventRegs) => {
       let docsRegs = eventRegs.map((doc) => {
-        return Regs.updateOne({ID: doc.ID}, DOFactory(doc, RegSchema));
+        return Regs.updateOne({ID: doc.ID}, DOFactory(doc, RegSchema), {upsert: true});
       });
       promises = promises.concat(docsRegs);
     });
