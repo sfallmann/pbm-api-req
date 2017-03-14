@@ -66,7 +66,7 @@ function DataObjectFactory(data, schema) {
   Object.keys(schema).forEach((prop) => {
     obj[prop] = schema[prop](data[prop]);
   });
-
+  obj['updated_on'] = new Date();
   return obj;
 
 }

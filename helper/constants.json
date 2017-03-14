@@ -8,5 +8,8 @@
             "GET_EVENT": "GetEvent",
             "GET_CUSTOM_FIELDS": "GetCustomFields"
         }
-    }
+    },
+    "HUBSPOT": {
+        "HOST": "https://api.hubapi.com/"
+    }    
 }

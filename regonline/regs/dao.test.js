@@ -13,6 +13,7 @@ describe('Regs Data Access Object (RegsDAO)', () => {
       })
   });
 
+
   it('should upsert to db Regs requested from RegOnline API', function(){
 
       const regsIDs = []

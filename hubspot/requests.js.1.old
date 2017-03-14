@@ -1,0 +1,63 @@
+'use strict';
+const axios = require('axios');
+const qs = require('querystring');
+const {HUBSPOT} = require('../config/config.json');
+
+let {HOST} = require('../helper/constants.json').HUBSPOT;
+
+//if (process.env.NODE_ENV === 'test' || process.env.NODE_ENV === 'development'){
+//  HOST = 'http://regonline.getsandbox.com/';
+//} else {
+//  HOST = require('../helper/constants.json').REGONLINE.HOST;
+//}
+
+const apiRequest = (form, endpoint, method, headers) => {
+
+  return	axios({
+    method,
+    url: HOST + endpoint,
+    data: qs.stringify(form),
+    timeout: 10000,
+    headers
+  });
+}
+
+
+const hubspotApi = {
+  refreshToken: () => {
+
+    const form = {
+      refresh_token: HUBSPOT.REFRESH_TOKEN,
+      redirect_uri: 'https://www.getpostman.com/oauth2/callback',
+      grant_type: 'refresh_token',
+      client_id: HUBSPOT.ID,
+      client_secret: HUBSPOT.SECRET
+    }
+
+    const ep = 'oauth/v1/token';
+    const method = 'POST';
+    const headers = {
+      'Content-Type': 'application/x-www-form-urlencoded'
+    };
+
+    return apiRequest(form, ep, method, headers);
+  }
+}
+
+
+
+hubspotApi.refreshToken()
+  .then((res) => {
+    const {access_token} = res.data;
+    const email = 'jfields@pbmbrands.com';
+    const ep = `/contacts/v1/contact/email/${email}/profile`;
+    const method = 'GET';
+    const headers = {
+      'Authorization': `Bearer ${access_token}`
+    }
+    return apiRequest(null, ep, method, headers)    
+  })
+  .then((res) => {
+    console.log(JSON.stringify(res.data, null, 2));
+  })
+  .catch(console.log);

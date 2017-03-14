@@ -5,13 +5,22 @@ const eventDao = require('../events/dao');
 const roReq = require('../requests');
 const {connection} = require('../../db/connect');
 
-describe('Regs Data Access Object (RegsDAO)', () => {
+after(function() {
+  return connection
+    .then(function(db) {
+      db.dropDatabase();
+      db.close();
+    })
+});
+
+describe('Fields Data Access Object (FieldsDAO)', () => {
   before(function() {
     return connection
       .then(function(db) {
         return db.dropDatabase();
       })
   });
+
 
   it('should upsert to db Fields requested from RegOnline API', function(){
 
@@ -51,8 +60,7 @@ describe('Regs Data Access Object (RegsDAO)', () => {
         result.forEach((field) => {
           expect(fieldsIDs).toInclude(field.ID);
         });
-      })
+        return connection;
+      });
   });
 });
-
-
