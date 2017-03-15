@@ -1,0 +1,328 @@
+{
+
+  "getToken_success": {
+    "refresh_token": "mock_refresh_token",
+    "access_token": "mock_access_token",
+    "expires_in": 21600
+  },
+  "createOrUpdateContact_success": {
+    "vid": 6277251,
+    "isNew": false
+  },
+  "createContactProperty_success": {
+    "name": "add_property_test",
+    "label": "Add Property Test",
+    "description": "testing api creation of contact property",
+    "groupName": "conferences",
+    "type": "enumeration",
+    "fieldType": "checkbox",
+    "options": [
+      {
+        "description": null,
+        "doubleData": null,
+        "label": "one",
+        "displayOrder": -1,
+        "hidden": false,
+        "readOnly": null,
+        "value": "1"
+      },
+      {
+        "description": null,
+        "doubleData": null,
+        "label": "two",
+        "displayOrder": -1,
+        "hidden": false,
+        "readOnly": null,
+        "value": "2"
+      },
+      {
+        "description": null,
+        "doubleData": null,
+        "label": "Added New Value - Removed Old",
+        "displayOrder": -1,
+        "hidden": false,
+        "readOnly": null,
+        "value": "test_change"
+      },
+      {
+        "description": null,
+        "doubleData": null,
+        "label": "03",
+        "displayOrder": -1,
+        "hidden": false,
+        "readOnly": null,
+        "value": "3"
+      },
+      {
+        "description": null,
+        "doubleData": null,
+        "label": "Bananas!!!",
+        "displayOrder": -1,
+        "hidden": false,
+        "readOnly": null,
+        "value": "bananas"
+      }
+    ],
+    "formField": true,
+    "displayOrder": 11,
+    "readOnlyValue": false,
+    "readOnlyDefinition": false,
+    "hidden": false,
+    "mutableDefinitionNotDeletable": false,
+    "favorited": false,
+    "favoritedOrder": -1,
+    "calculated": false,
+    "externalOptions": false,
+    "displayMode": "current_value"
+  },
+  "getContactProperty_success": {
+    "name": "firstname",
+    "label": "First Name",
+    "description": "A contact's first name",
+    "groupName": "contactinformation",
+    "type": "string",
+    "fieldType": "text",
+    "options": [],
+    "formField": true,
+    "displayOrder": 0,
+    "readOnlyValue": false,
+    "readOnlyDefinition": true,
+    "hidden": false,
+    "mutableDefinitionNotDeletable": true,
+    "favorited": true,
+    "favoritedOrder": 0,
+    "calculated": false,
+    "externalOptions": false,
+    "displayMode": "current_value",
+    "hubspotDefined": true
+  },
+  "getContactByEmail_success": {
+    "vid": 6277251,
+    "canonical-vid": 6277251,
+    "merged-vids": [],
+    "portal-id": 1978917,
+    "is-contact": true,
+    "profile-token": "AO_T-mM3rb0b4PLXKOWo8dS-LZHhKyYopEHT0aWtHxBSJnKh22JuPx9CuvdsNSVJNUe1bSbjzx8AIYZQ68XpgePX6MIdbbzl5haMmcHHMjYpa7bwWsf_zD3UNxCIlzxZCMa_LEbOxRUl",
+    "profile-url": "https://app.hubspot.com/contacts/1978917/lists/public/contact/_AO_T-mM3rb0b4PLXKOWo8dS-LZHhKyYopEHT0aWtHxBSJnKh22JuPx9CuvdsNSVJNUe1bSbjzx8AIYZQ68XpgePX6MIdbbzl5haMmcHHMjYpa7bwWsf_zD3UNxCIlzxZCMa_LEbOxRUl/",
+    "properties": {
+      "associatedcompanyid": {
+        "value": "299376173"
+      },
+      "associated_reps": {
+        "value": ""
+      }
+    },
+    "identity-profiles": [
+      {
+        "vid": 6277251,
+        "saved-at-timestamp": 1487449729788,
+        "deleted-changed-timestamp": 0,
+        "identities": [
+          {
+            "type": "EMAIL",
+            "value": "jfields@pbmbrands.com",
+            "timestamp": 1478096569005
+          },
+          {
+            "type": "LEAD_GUID",
+            "value": "b24210c3-e249-4d98-b391-9055881bcfcb",
+            "timestamp": 1478096569832
+          }
+        ]
+      },
+      {
+        "vid": 29785351,
+        "saved-at-timestamp": 1487449729788,
+        "deleted-changed-timestamp": 0,
+        "identities": []
+      },
+      {
+        "vid": 16859901,
+        "saved-at-timestamp": 1487449729788,
+        "deleted-changed-timestamp": 0,
+        "identities": []
+      },
+      {
+        "vid": 10152901,
+        "saved-at-timestamp": 1487449729788,
+        "deleted-changed-timestamp": 0,
+        "identities": []
+      }
+    ],
+    "merge-audits": [],
+    "associated-company": {
+      "company-id": 299376173,
+      "portal-id": 1978917,
+      "properties": {
+        "country": {
+          "value": "United States"
+        },
+        "num_associated_contacts": {
+          "value": "29"
+        },
+        "createdate": {
+          "value": "1476560903305"
+        },
+        "days_to_close": {
+          "value": "23"
+        },
+        "type": {
+          "value": ""
+        },
+        "linkedin_company_page": {
+          "value": "http://linkedin.com/company/progressive-business-media"
+        },
+        "recent_conversion_event_name": {
+          "value": "PBM Eletter Preferences: Preference Center Form"
+        },
+        "hubspot_owner_id": {
+          "value": "14100521"
+        },
+        "first_deal_created_date": {
+          "value": ""
+        },
+        "annualrevenue": {
+          "value": "10000000"
+        },
+        "num_associated_deals": {
+          "value": ""
+        },
+        "hs_analytics_num_page_views": {
+          "value": "14119"
+        },
+        "state": {
+          "value": "NC"
+        },
+        "zip": {
+          "value": "27409"
+        },
+        "notes_last_updated": {
+          "value": "1489592816730"
+        },
+        "recent_deal_close_date": {
+          "value": ""
+        },
+        "first_conversion_date": {
+          "value": "1478014629707"
+        },
+        "first_contact_createdate": {
+          "value": "1476574666651"
+        },
+        "twitterhandle": {
+          "value": ""
+        },
+        "phone": {
+          "value": "336-605-0121"
+        },
+        "num_conversion_events": {
+          "value": "90"
+        },
+        "domain": {
+          "value": "pbmbrands.com"
+        },
+        "name": {
+          "value": "Progressive Business Media"
+        },
+        "first_conversion_event_name": {
+          "value": "Media Kit | Furniture Today: FT Media Kit"
+        },
+        "city": {
+          "value": "Greensboro"
+        },
+        "timezone": {
+          "value": "America/New_York"
+        },
+        "description": {
+          "value": ""
+        },
+        "industry": {
+          "value": ""
+        },
+        "hs_analytics_last_timestamp": {
+          "value": "1489593170313"
+        },
+        "numberofemployees": {
+          "value": "200"
+        },
+        "hs_analytics_num_visits": {
+          "value": "2621"
+        },
+        "hs_analytics_last_visit_timestamp": {
+          "value": "1489591868583"
+        },
+        "hs_analytics_source": {
+          "value": "DIRECT_TRAFFIC"
+        },
+        "num_contacted_notes": {
+          "value": "502"
+        },
+        "recent_deal_amount": {
+          "value": ""
+        },
+        "founded_year": {
+          "value": "2013"
+        },
+        "linkedinbio": {
+          "value": ""
+        },
+        "notes_next_activity_date": {
+          "value": ""
+        },
+        "website": {
+          "value": "progressivebusinessmedia.com"
+        },
+        "address": {
+          "value": ""
+        },
+        "closedate": {
+          "value": "1478553939299"
+        },
+        "hs_analytics_first_visit_timestamp": {
+          "value": "1476219844608"
+        },
+        "hs_analytics_first_timestamp": {
+          "value": "1476219844608"
+        },
+        "engagements_last_meeting_booked": {
+          "value": ""
+        },
+        "company_fax_number": {
+          "value": "N/A"
+        },
+        "hs_lastmodifieddate": {
+          "value": "1489593537696"
+        },
+        "hubspot_owner_assigneddate": {
+          "value": "1481917292842"
+        },
+        "notes_last_contacted": {
+          "value": "1489592332000"
+        },
+        "total_revenue": {
+          "value": ""
+        },
+        "hs_num_child_companies": {
+          "value": "1"
+        },
+        "is_public": {
+          "value": ""
+        },
+        "recent_conversion_date": {
+          "value": "1489321564197"
+        },
+        "hs_analytics_source_data_2": {
+          "value": ""
+        },
+        "hs_analytics_source_data_1": {
+          "value": ""
+        },
+        "lifecyclestage": {
+          "value": "opportunity"
+        },
+        "num_notes": {
+          "value": "615"
+        }
+      }
+    }
+  }
+}

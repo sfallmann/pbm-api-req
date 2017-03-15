@@ -45,7 +45,7 @@ const apiRequest = (request) => {
   return	axios(req);
 }
 
-const hubspotApi = {
+const HubSpotAPI = {
   getToken: () => {
 
     const data = qs.stringify({
@@ -68,7 +68,7 @@ const hubspotApi = {
     return apiRequest(req);
   },
   getContactByEmail: (email) => {
-    return hubspotApi.getToken()
+    return HubSpotAPI.getToken()
       .then((res) => {
         const req = {
           baseURL: HOST,
@@ -88,8 +88,8 @@ const hubspotApi = {
         return apiRequest(req);
       });
   },
-  getContactProperty: (options) => {
-    return hubspotApi.getToken()
+  getContactProperty: (name) => {
+    return HubSpotAPI.getToken()
       .then((res) => {
         const req = {
           baseURL: HOST,
@@ -97,13 +97,7 @@ const hubspotApi = {
           url: `/properties/v1/contacts/properties/named/${name}`,
           headers: {
             'Authorization': `Bearer ${res.data.access_token}`
-          },
-          params: {
-            showListMemberships: false,
-            formSubmissionMode: 'none',
-            property: 'associated_reps',
-            propertyMode: 'value_only'
-          },            
+          }        
         }
 
         return apiRequest(req);
@@ -111,8 +105,7 @@ const hubspotApi = {
 
   },
   createContactProperty: (data) => {
-
-    return hubspotApi.getToken()
+    return HubSpotAPI.getToken()
       .then((res) => {
         const req = {
           baseURL: HOST,
@@ -129,8 +122,7 @@ const hubspotApi = {
       });
   },
   updateContactProperty: (name, data) => {
-
-    return hubspotApi.getToken()
+    return HubSpotAPI.getToken()
       .then((res) => {
         const req = {
           baseURL: HOST,
@@ -147,7 +139,7 @@ const hubspotApi = {
       });
   },  
   getContactPropertyGroups: () => {
-    return hubspotApi.getToken()
+    return HubSpotAPI.getToken()
       .then((res) => {
         const req = {
           baseURL: HOST,
@@ -162,14 +154,12 @@ const hubspotApi = {
       })
   },
   createOrUpdateContact: (email, data) => {
-
-
-    return hubspotApi.getToken()
+    return HubSpotAPI.getToken()
       .then((res) => {
         const req = {
           baseURL: HOST,
           method: 'POST',
-          url: `https://api.hubapi.com/contacts/v1/contact/createOrUpdate/email/${email}`,
+          url: `/contacts/v1/contact/createOrUpdate/email/${email}`,
           headers: {
             'Authorization': `Bearer ${res.data.access_token}`,
             'Content-Type': 'application/json'
@@ -182,14 +172,26 @@ const hubspotApi = {
   }      
 }
 
+module.exports = {HubSpotAPI};
+
 
 
 
 
 /*
+HubSpotAPI.createOrUpdateContact("jfields@pbmbrands.com", {properties: [{property: "firstname", value: "John"}]})
+  .then((res) => {
+    console.log(JSON.stringify(res.data, null, 2));
+  })
+  .catch(console.log);
+HubSpotAPI.createContactProperty(data)
+  .then((res) => {
+    console.log(JSON.stringify(res.data, null, 2));
+  })
+  .catch(console.log);
 
-// create property example
 const data = {
+  name: 'add_property_test',
   label: 'Add Property Test',
   groupName: 'conferences',
   type: 'enumeration',
@@ -219,5 +221,14 @@ const data = {
   ],
   formField: 'true'
 }
+
+
+HubSpotAPI.getContactProperty('firstname')
+  .then((res) => {
+    console.log(JSON.stringify(res.data, null, 2));
+  })
+  .catch(console.log);
+// create property example
+
 
 */  
