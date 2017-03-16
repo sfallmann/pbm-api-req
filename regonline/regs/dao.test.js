@@ -19,8 +19,9 @@ describe('Regs Data Access Object (RegsDAO)', () => {
       const regsIDs = []
       return eventDao.upsertEventsToDB({filter: '', orderBy: ''})
       .then((res) => {
-        return dao.upsertRegsForEvent({ID: 11234}, {ID: 1, _id: 1});
+        return eventDao.Events.find({ID:11234}).toArray();
       })
+      .then(dao.upsertRegsForEvent)
       .then((results) => {
         expect(results.length).toBe(3);
         return;
@@ -29,9 +30,12 @@ describe('Regs Data Access Object (RegsDAO)', () => {
         return roReq({filter: '', orderBy: '', eventID: '11234'}, service.GET_REGS_FOR_EVENT);
       })
       .then((res) => {
+
         const regs = res.data.ResultsOfListOfRegistration.Data.APIRegistration;
         regs.forEach((reg) => {
+          
           regsIDs.push(Number(reg.ID));
+
         })
         return connection;
       })

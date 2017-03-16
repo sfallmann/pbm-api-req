@@ -27,8 +27,9 @@ describe('Fields Data Access Object (FieldsDAO)', () => {
       const fieldsIDs = []
       return eventDao.upsertEventsToDB({filter: '', orderBy: ''})
       .then((res) => {
-        return dao.upsertFieldsForEvent({ID: 11234}, {ID: 1, _id: 1});
+        return eventDao.Events.find({ID:11234}).toArray();
       })
+      .then(dao.upsertFieldsForEvent)
       .then((results) => {
         expect(results.length).toBe(3);
         return;

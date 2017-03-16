@@ -19,7 +19,9 @@ const RegsDAO = () => {
 
     return regonlineReqs(form, service.GET_REGS_FOR_EVENT)
       .then((result) => {
+
         const regs = result.data.ResultsOfListOfRegistration.Data.APIRegistration;
+
         if (regs instanceof Array) {
           return regs;
         } else if (regs instanceof Object){
@@ -30,11 +32,12 @@ const RegsDAO = () => {
       });
   };
 
-  function processRegs(docs) {
-    const cb = (doc) => {
-      return getRegsForEvent({filter: '', orderBy: '', eventID: doc.ID});
-    }
-    return processApiArray(docs, cb);
+  function processRegs(events) {
+    
+    const promises = events.map((event) => {
+      return getRegsForEvent({filter: '', orderBy: '', eventID: event.ID});
+    })
+    return Promise.all(promises);
   }
 
   function upsertAllRegs(regsArrays) {
@@ -42,20 +45,21 @@ const RegsDAO = () => {
 
     regsArrays.forEach((eventRegs) => {
       let docsRegs = eventRegs.map((doc) => {
-        return Regs.updateOne({ID: doc.ID}, DOFactory(doc, RegSchema), {upsert: true});
+        
+        return Regs.updateOne({ID: Number(doc.ID)}, DOFactory(doc, RegSchema), {upsert: "true"});
       });
       promises = promises.concat(docsRegs);
     });
     return Promise.all(promises);
   }
 
-  function upsertRegsForEvent(doc, project) {
-    return Events.find(doc, project).toArray()
-    .then(processRegs) 
+  function upsertRegsForEvent(events) {
+    return processRegs(events)
     .then(upsertAllRegs);
   }
 
   return {
+    Regs,
     getRegsForEvent,
     upsertRegsForEvent
   };
@@ -64,4 +68,3 @@ const RegsDAO = () => {
 const dao = RegsDAO();
 
 module.exports = RegsDAO();
-

@@ -30,11 +30,11 @@ const FieldsDAO = () => {
       });           
   };
 
-  function processFields(docs) {
-    const cb = (doc) => {
-      return getFieldsForEvent({pageSectionID: 1, orderBy: '', eventID: doc.ID});
-    }
-    return processApiArray(docs, cb);
+  function processFields(events) {
+    const promises = events.map((event) => {
+      return getFieldsForEvent({pageSectionID: 1, orderBy: '', eventID: event.ID});
+    })
+    return Promise.all(promises);
   }
 
   function upsertAllFields(fieldsArray) {
@@ -42,7 +42,7 @@ const FieldsDAO = () => {
     fieldsArray.forEach((eventFields) => {
 
       let docsFields = eventFields.map((doc) => {
-        return Fields.updateOne({ID: doc.ID}, DOFactory(doc, FieldSchema), {upsert: true});
+        return Fields.updateOne({ID: Number(doc.ID)}, DOFactory(doc, FieldSchema), {upsert: "true"});
       });
 
       promises = promises.concat(docsFields);
@@ -50,13 +50,13 @@ const FieldsDAO = () => {
     return Promise.all(promises);
   }
 
-  function upsertFieldsForEvent(doc, project) {
-    return Events.find(doc, project).toArray()
-    .then(processFields) 
+  function upsertFieldsForEvent(events) {
+    return processFields(events)  
     .then(upsertAllFields);
   }
 
   return {
+    Fields,
     getFieldsForEvent,
     upsertFieldsForEvent
   };
@@ -64,5 +64,7 @@ const FieldsDAO = () => {
 };
 
 const dao = FieldsDAO();
+
+
 
 module.exports = dao;

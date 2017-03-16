@@ -64,6 +64,7 @@ class Collection{
   }
 
   updateOne(filter, doc, options){
+    
     options = options || {};
     return connection
       .then((db) => {

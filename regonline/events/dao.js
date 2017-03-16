@@ -44,7 +44,7 @@ const EventsDAO = () => {
 
     eventsArray.forEach((doc) => {
       promises.push(Events
-        .updateOne({ID: doc.ID}, DOFactory(doc, EventSchema), {upsert: true}));
+        .updateOne({ID: Number(doc.ID)}, DOFactory(doc, EventSchema), {upsert: true}));
     });
 
     return Promise.all(promises);
@@ -76,5 +76,9 @@ const EventsDAO = () => {
 };
 
 const dao = EventsDAO();
+
+dao.upsertEventsToDB({filter:'', orderBy: ''})
+.then()
+.catch(console.log);
 
 module.exports = dao;
