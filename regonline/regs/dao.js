@@ -40,22 +40,26 @@ const RegsDAO = () => {
     return Promise.all(promises);
   }
 
-  function upsertAllRegs(regsArrays) {
+  function upsertAllRegs(regsArrays, options) {
+
     let promises = [];
 
     regsArrays.forEach((eventRegs) => {
       let docsRegs = eventRegs.map((doc) => {
-        
-        return Regs.updateOne({ID: Number(doc.ID)}, DOFactory(doc, RegSchema), {upsert: "true"});
+        doc = Object.assign(doc, options);
+        return Regs.updateOne({ID: Number(doc.ID)}, DOFactory(doc, RegSchema), {upsert: true});
       });
       promises = promises.concat(docsRegs);
     });
     return Promise.all(promises);
   }
 
-  function upsertRegsForEvent(events) {
+  function upsertRegsForEvent(events, options) {
+    options = options || {};
     return processRegs(events)
-    .then(upsertAllRegs);
+    .then((regArrays) => {
+      return upsertAllRegs(regArrays, options);
+    });
   }
 
   return {
@@ -66,5 +70,13 @@ const RegsDAO = () => {
 };
 
 const dao = RegsDAO();
+
+Events.find({ "ModDate": { $gte: new Date("2017-01-11") } })
+  .toArray()
+  .then((events) => {
+    return dao.upsertRegsForEvent(events, {testProp: 'this_worked!'});
+  })
+  .then(console.log)
+  .catch(console.log);
 
 module.exports = RegsDAO();

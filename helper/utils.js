@@ -62,9 +62,15 @@ function isSymbol(val){
 function DataObjectFactory(data, schema) {
 
   const obj = {};
+  
+  Object.keys(data).forEach((prop) => {
 
-  Object.keys(schema).forEach((prop) => {
-    obj[prop] = schema[prop](data[prop]);
+    if (prop in schema){
+      obj[prop] = schema[prop](data[prop]);
+    } else {
+      obj[prop] = data[prop];
+    }
+    
   });
   obj['updated_on'] = new Date();
   return obj;
@@ -78,6 +84,13 @@ function processApiArray(docs, cb){
   return Promise.all(promises);
 }
 
+function createHubSpotPropObj(doc){
+
+}
+
+function createHubSpotPropOptions(){
+
+}
 
 module.exports = {
   DataObjectFactory,

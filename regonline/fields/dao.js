@@ -42,7 +42,7 @@ const FieldsDAO = () => {
     fieldsArray.forEach((eventFields) => {
 
       let docsFields = eventFields.map((doc) => {
-        return Fields.updateOne({ID: Number(doc.ID)}, DOFactory(doc, FieldSchema), {upsert: "true"});
+        return Fields.updateOne({ID: Number(doc.ID)}, DOFactory(doc, FieldSchema), {upsert: true});
       });
 
       promises = promises.concat(docsFields);
@@ -64,7 +64,5 @@ const FieldsDAO = () => {
 };
 
 const dao = FieldsDAO();
-
-
 
 module.exports = dao;
