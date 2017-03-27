@@ -4,6 +4,13 @@ const MongoClient = require('mongodb').MongoClient;
 const dbCon = new MongoClient();
 const connection = dbCon.connect(process.env.DB_URI);
 
+/**
+ * Query a collection
+ * 
+ * @param {string} collection - The name of a collection
+ * @param {object} query - The object containing query parameters
+ * @param {object} project - The project object specifying the fields to return
+ */
 function queryCollection(collection, query, project) {
   project = project || {};
   return connection
@@ -12,6 +19,11 @@ function queryCollection(collection, query, project) {
     });
 }
 
+/**
+ * Wraps the cursor.toArray method in a Promise
+ * 
+ * @param {object} cursor - The db cursor
+ */
 function toArray(cursor){
   return new Promise((resolve, reject) => {
     cursor.toArray((err, docs) => {
@@ -23,6 +35,13 @@ function toArray(cursor){
   });
 };
 
+/**
+ * UpsertOne document into a collection
+ * 
+ * @param {object} doc - The document to upsert
+ * @param {string} collection - The name of a collection
+ * @param {object} options - The options object for the request
+ */
 function upsertOne(doc, collection, options){
   options = options || {upsert: true};
   return connection.then((db) => {

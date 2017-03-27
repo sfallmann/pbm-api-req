@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Source: regonline/fields/dao.js</title>
+    <title>JSDoc: Source: db/connect.js</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Source: regonline/fields/dao.js</h1>
+    <h1 class="page-title">Source: db/connect.js</h1>
 
     
 
@@ -27,93 +27,67 @@
     <section>
         <article>
             <pre class="prettyprint source linenums"><code>'use strict';
-const {emitter} = require('../../config/config');
-const regonlineReqs = require('../../regonline/requests');
-const service = require('../../helper/constants').REGONLINE.SERVICE;
-const {processApiArray} = require('../../helper/utils');
-const DOFactory = require('../../helper/utils').DataObjectFactory;
-const FieldSchema = require('./schema');
-const {Collection} = require('../../db/collection');
-const {Events} = require('../events/dao');
-const {conn,getCollection,iterateCollection,upsertOne}
-  = require('../../db/connect');
+const {logger, emitter} = require('../config/config');
+const MongoClient = require('mongodb').MongoClient;
+const dbCon = new MongoClient();
+const connection = dbCon.connect(process.env.DB_URI);
 
 /**
- * Data Access Object for RegOnline CustomFields
+ * Query a collection
+ * 
+ * @param {string} collection - The name of a collection
+ * @param {object} query - The object containing query parameters
+ * @param {object} project - The project object specifying the fields to return
  */
-const FieldsDAO = () => {
-
-  const Fields = new Collection('regonlineFields');
-
-  /**
-   * Request CustomFields for an Event from the RegOnline API
-   * 
-   * @param {object} form - The parameters for the request.
-   */
-  function getFieldsForEvent(form) {
-
-    return regonlineReqs(form, service.GET_CUSTOM_FIELDS)
-      .then((result) => {
-        const fields = result.data.ResultsOfListOfCustomField.Data.APICustomField;
-        if (fields instanceof Array) {
-          return fields;
-        } else if (fields instanceof Object) {
-          return[fields];
-        } else {
-          return [];
-        }
-      });           
-  };
-
-  /**
-   * Requests CustomFields for each Event in the array
-   * 
-   * @param {array} events - Array of RegOnline EventIDs
-   */
-  function processFields(events) {
-    const promises = events.map((event) => {
-      return getFieldsForEvent({pageSectionID: 1, orderBy: '', eventID: event.ID});
-    })
-    return Promise.all(promises);
-  }
-
-  /** Upsert CustomFields to db
-   * 
-   * @param {array} regsArrays - An array of CustomFields arrays
-   */
-  function upsertAllFields(fieldsArray) {
-    let promises = [];
-    fieldsArray.forEach((eventFields) => {
-
-      let docsFields = eventFields.map((doc) => {
-        return Fields.updateOne({ID: Number(doc.ID)}, DOFactory(doc, FieldSchema), {upsert: true});
-      });
-
-      promises = promises.concat(docsFields);
+function queryCollection(collection, query, project) {
+  project = project || {};
+  return connection
+    .then((db) => {
+      return db.collection(collection).find(query).project(project);;
     });
-    return Promise.all(promises);
-  }
+}
 
-  /** Wrapper function for processing and upserting CustomFields
-   * 
-   * @param {array} events - Array of RegOnline EventIDs
-   */
-  function upsertFieldsForEvent(events) {
-    return processFields(events)  
-    .then(upsertAllFields);
-  }
-
-  return {
-    Fields,
-    getFieldsForEvent,
-    upsertFieldsForEvent
-  };
-
+/**
+ * Wraps the cursor.toArray method in a Promise
+ * 
+ * @param {object} cursor - The db cursor
+ */
+function toArray(cursor){
+  return new Promise((resolve, reject) => {
+    cursor.toArray((err, docs) => {
+      if (err) {
+        reject(err);
+      }
+      resolve(docs);
+    });
+  });
 };
 
-const dao = FieldsDAO();
+/**
+ * UpsertOne document into a collection
+ * 
+ * @param {object} doc - The document to upsert
+ * @param {string} collection - The name of a collection
+ * @param {object} options - The options object for the request
+ */
+function upsertOne(doc, collection, options){
+  options = options || {upsert: true};
+  return connection.then((db) => {
+    return db.collection(collection)
+      .updateOne({ID: doc.ID}, doc, options)
+      .then((result) => {
+        return result;
+      });
+  });
+}
 
-module.exports = dao;
+
+module.exports = {
+  connection,
+  queryCollection,
+  toArray,
+  upsertOne
+};
 </code></pre>
         </article>
     </section>
