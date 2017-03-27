@@ -1,5 +1,8 @@
 const type = require('../../helper/utils').type;
 
+/**
+ * Schema object for RegOnline CustomFields
+ */
 const FieldSchema = {
   ID: type.isNumber,
   EventID: type.isNumber,

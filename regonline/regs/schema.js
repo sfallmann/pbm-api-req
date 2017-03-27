@@ -1,5 +1,8 @@
 const type = require('../../helper/utils').type;
 
+/**
+ * Schema object for RegOnline Registrations
+ */
 const RegSchema = {
   ID: type.isNumber,
   EventID: type.isNumber,

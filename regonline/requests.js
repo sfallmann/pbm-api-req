@@ -12,6 +12,12 @@ if (process.env.NODE_ENV === 'test' || process.env.NODE_ENV === 'development'){
   HOST = require('../helper/constants.json').REGONLINE.HOST;
 }
 
+/**
+ * Sends a request to the RegOnline API
+ * 
+ * @param {object} form - The parameters for the request.
+ * @param {string} service - The API endpoint for the request.
+ */
 const regOnlineSOAP = (form, service) => {
   return	axios({
     method: 'POST',
@@ -25,6 +31,11 @@ const regOnlineSOAP = (form, service) => {
   });
 };
 
+/**
+ * Parses XML into an object
+ * 
+ * @param {string} res - XML string 
+ */
 const parseXML = (res) => {
   return new Promise((resolve, reject) => {
     parseString(res.data,
@@ -39,7 +50,13 @@ const parseXML = (res) => {
   });
 }
 
-const regOnlineApiWrapper = function(form, service){
+/**
+ * Wrapper for the RegOnline API that returns a response object
+ * 
+ * @param {object} form - The parameters for the request.
+ * @param {string} service - The API endpoint for the request.
+ */
+const regOnlineApiWrapper = (form, service) => {
   return regOnlineSOAP(form, service).then(parseXML);
 };
 
