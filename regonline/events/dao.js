@@ -39,8 +39,17 @@ const EventsDAO = () => {
 
     return regonlineReqs(form, service.GET_EVENTS)
       .then((result) => {
-        const events = result.data.ResultsOfListOfEvent.Data.APIEvent;
-        return events;
+
+        const events = result.data.ResultsOfListOfEvent;
+  
+        if (!events.Data){
+          return [];
+        } else if (events.Data.APIEvent instanceof Array) {
+          return events.Data.APIEvent;
+        } else if (events.Data.APIEvent instanceof Object){
+          return [events.Data.APIEvent];
+        }
+         
       });
   };
   /**
@@ -60,7 +69,6 @@ const EventsDAO = () => {
    */
   function upsertAllEvents(eventsArray) {
     let promises = [];
-
     eventsArray.forEach((doc) => {
       promises.push(Events
         .updateOne({ID: Number(doc.ID)}, DOFactory(doc, EventSchema), {upsert: true}));

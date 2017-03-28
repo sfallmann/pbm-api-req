@@ -14,7 +14,10 @@ const {connection,queryCollection,toArray,upsertOne}
  */
 const RegsDAO = () => {
 
+  
+
   const Regs = new Collection('regonlineRegs');
+  const eventIDMap = Object.create(null);
 
   /**
    * Request Registrations for an Event from the RegOnline API
@@ -26,14 +29,13 @@ const RegsDAO = () => {
     return regonlineReqs(form, service.GET_REGS_FOR_EVENT)
       .then((result) => {
 
-        const regs = result.data.ResultsOfListOfRegistration.Data.APIRegistration;
-
-        if (regs instanceof Array) {
-          return regs;
-        } else if (regs instanceof Object){
-          return [regs];
-        } else {
+        const regs = result.data.ResultsOfListOfRegistration
+        if (!regs.Data) {
           return [];
+        } else if (regs.Data.APIRegistration instanceof Array) {
+          return regs.Data.APIRegistration;
+        } else if (regs.Data.APIRegistration instanceof Object){
+          return [regs.Data.APIRegistration];
         }
       });
   };
@@ -43,10 +45,12 @@ const RegsDAO = () => {
    * 
    * @param {array} events - Array of RegOnline EventIDs
    */
-  function processRegs(events) {
+  function processRegs(events, filter) {
     
     const promises = events.map((event) => {
-      return getRegsForEvent({filter: '', orderBy: '', eventID: event.ID});
+      
+      eventIDMap[event.ID] = event;
+      return getRegsForEvent({filter, orderBy: '', eventID: event.ID});
     })
     return Promise.all(promises);
   }
@@ -62,7 +66,16 @@ const RegsDAO = () => {
 
     regsArrays.forEach((eventRegs) => {
       let docsRegs = eventRegs.map((doc) => {
-        doc = Object.assign(doc, options);
+        const year = eventIDMap[doc.EventID].StartDate.getFullYear();
+        const type = doc.RegistrationType;
+        const inserts = {
+          hubSpotAttendeeType: `${year} ${type}`,
+          eventTitle: eventIDMap[doc.EventID].Title,
+          eventStartDate: eventIDMap[doc.EventID].StartDate,
+          eventModDate: eventIDMap[doc.EventID].ModDate,
+          eventAddDate: eventIDMap[doc.EventID].AddDate,
+        }
+        doc = Object.assign(doc, options, inserts);
         return Regs.updateOne({ID: Number(doc.ID)}, DOFactory(doc, RegSchema), {upsert: true});
       });
       promises = promises.concat(docsRegs);
@@ -75,9 +88,10 @@ const RegsDAO = () => {
    * @param {array} events - Array of RegOnline EventIDs
    * @param {object} options - Additional data to be upserted with each Registration
    */
-  function upsertRegsForEvent(events, options) {
+  function upsertRegsForEvent(events, filter, options) {
     options = options || {};
-    return processRegs(events)
+    filter = filter || '';
+    return processRegs(events, filter)
     .then((regArrays) => {
       return upsertAllRegs(regArrays, options);
     });

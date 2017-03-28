@@ -26,13 +26,15 @@ const FieldsDAO = () => {
 
     return regonlineReqs(form, service.GET_CUSTOM_FIELDS)
       .then((result) => {
-        const fields = result.data.ResultsOfListOfCustomField.Data.APICustomField;
-        if (fields instanceof Array) {
-          return fields;
-        } else if (fields instanceof Object) {
-          return[fields];
-        } else {
+        
+        const fields = result.data.ResultsOfListOfCustomField;
+        
+        if (!fields.Data) {
           return [];
+        } else if (fields.Data.APICustomField instanceof Array) {
+          return fields.Data.APICustomField;
+        } else if (fields.Data.APICustomField instanceof Object) {
+          return[fields.Data.APICustomField];
         }
       });           
   };
