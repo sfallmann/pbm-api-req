@@ -1,12 +1,10 @@
 const {RegOnline} = require('./regonline/regonline');
 
-console.log(RegOnline());
-
 let events;
 
-RegOnline().upsertEventsToDB({filter: '', orderBy: ''})
+RegOnline().upsertEventsToDB({filter: 'StartDate >= DateTime(2017, 1, 1)', orderBy: ''})
   .then(() => {
-    return RegOnline().Events.find({}, {ID: 1}).toArray();
+    return RegOnline().Events.find({}, {}).toArray();
   })
   .then((results) => {
     events = results;
@@ -14,7 +12,6 @@ RegOnline().upsertEventsToDB({filter: '', orderBy: ''})
   })
   .then(RegOnline().upsertRegsForEvent)
   .then((results) => {
-    console.log(results);
     return events;
   })
   .then(RegOnline().upsertFieldsForEvent)

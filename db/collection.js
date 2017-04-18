@@ -74,6 +74,15 @@ class Collection{
       });
   }
 
+  distinct(key, query, options) {
+    query = query || {};
+    options = options || {};
+    return connection
+      .then((db) => {
+        return db.collection(this.name).distinct(key, query, options);
+      });
+  }
+
   /**
    * Insert multiple documents to the collection
    * 
@@ -96,6 +105,15 @@ class Collection{
    * @param {object} options - The options object
    */
   updateOne(filter, doc, options){
+    
+    options = options || {};
+    return connection
+      .then((db) => {
+        return db.collection(this.name).updateOne(filter, doc, options);
+      });
+  }
+
+  findOneAndUpdate(filter, doc, options){
     
     options = options || {};
     return connection
