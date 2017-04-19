@@ -114,13 +114,21 @@ class Collection{
   }
 
   findOneAndUpdate(filter, doc, options){
-    
     options = options || {};
     return connection
       .then((db) => {
-        return db.collection(this.name).updateOne(filter, doc, options);
+        return db.collection(this.name).findOneAndUpdate(filter, doc, options);
       });
   }
+
+  insert(doc, options){
+    options = options || {};
+    return connection
+      .then((db) => {
+        return db.collection(this.name).insert(doc, options);
+      });
+  }  
+  
 }
 
 

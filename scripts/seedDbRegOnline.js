@@ -1,4 +1,4 @@
-const {RegOnline} = require('./regonline/regonline');
+const {RegOnline} = require('../regonline/regonline');
 
 let events;
 
@@ -15,5 +15,7 @@ RegOnline().upsertEventsToDB({filter: 'StartDate >= DateTime(2017, 1, 1)', order
     return events;
   })
   .then(RegOnline().upsertFieldsForEvent)
-  .then(console.log)
+  .then(() => {
+    console.log('Seed DB with RegOnline Data: Complete')
+  })
   .catch(console.log);
