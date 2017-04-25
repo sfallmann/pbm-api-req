@@ -1,4 +1,5 @@
 'use strict';
+const Promise = require('bluebird');
 const axios = require('axios');
 const qs = require('querystring');
 const parseString = require('xml2js').parseString;

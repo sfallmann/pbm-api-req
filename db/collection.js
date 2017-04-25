@@ -1,3 +1,4 @@
+const Promise = require('bluebird');
 const {ObjectID} = require('mongodb');
 const {connection,queryCollection,toArray,upsertOne}
   = require('./connect');
@@ -11,6 +12,37 @@ class Collection{
   constructor(name) {
     this.name = name;
   }
+
+  aggregate(pipeline, options) {
+
+    pipeline = pipeline || {};
+    options = options || {};
+
+    const cursor = connection
+                    .then((db) => {
+                      return db.collection(this.name).aggregate(pipeline, options);
+                    });
+
+    const obj = {
+      cursor: Promise.resolve(cursor),
+      toArray:  () => {
+        return obj.cursor.then(toArray);
+      },
+      project: (doc) => {
+        obj.cursor = obj.cursor.then(project);
+        return obj;
+      },
+      count:  () => {
+        return obj.cursor.then(count);
+      },
+      explain: () => {
+        return obj.cursor.then(explain);
+      }
+
+    }
+    return obj;
+  }
+
 
   /** Query the collection for a document
    * 

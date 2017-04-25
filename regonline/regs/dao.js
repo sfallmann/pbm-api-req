@@ -1,4 +1,5 @@
 'use strict';
+const Promise = require('bluebird');
 const regonlineReqs = require('../../regonline/requests');
 const service = require('../../helper/constants').REGONLINE.SERVICE;
 const {processApiArray} = require('../../helper/utils');

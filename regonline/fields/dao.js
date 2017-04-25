@@ -1,4 +1,5 @@
 'use strict';
+const Promise = require('bluebird');
 const {emitter} = require('../../config/config');
 const regonlineReqs = require('../../regonline/requests');
 const service = require('../../helper/constants').REGONLINE.SERVICE;

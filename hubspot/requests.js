@@ -79,6 +79,22 @@ const HubSpotAPI = {
         return apiRequest(req);
       });
   },
+  getAllContactProperties: () => {
+    return HubSpotAPI.getToken()
+      .then((res) => {
+        const req = {
+          baseURL: HOST,
+          method: 'GET',
+          url: `/properties/v1/contacts/properties`,
+          headers: {
+            'Authorization': `Bearer ${res.data.access_token}`
+          }        
+        }
+
+        return apiRequest(req);
+      })
+
+  },
   getContactProperty: (name) => {
     return HubSpotAPI.getToken()
       .then((res) => {
@@ -160,7 +176,27 @@ const HubSpotAPI = {
 
         return apiRequest(req);
       });
-  }      
+  },
+  formatResponse: (results) => {
+
+    const obj = Object.assign(Object.create(null), { 
+      status: undefined,
+      msg: undefined,
+    });
+
+    if (results instanceof Error) {
+      obj.error = results.message;
+      obj.status = results.response.status;
+      obj.msg = results.response.data.message;
+    } else {
+      obj.status = results.status;
+      obj.msg = results.statusText
+      obj.data = results.data
+    }
+
+    return obj;
+
+  }        
 }
 
 module.exports = {HubSpotAPI};

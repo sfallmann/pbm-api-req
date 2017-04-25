@@ -1,4 +1,5 @@
 'use strict';
+const Promise = require('bluebird');
 const {logger, emitter} = require('../config/config');
 const MongoClient = require('mongodb').MongoClient;
 const dbCon = new MongoClient();
