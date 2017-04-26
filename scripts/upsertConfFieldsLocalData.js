@@ -29,7 +29,21 @@ RegOnline().Regs
       });
     });
     const promises = conferenceFields.map((field) => {
-      return HubSpot().Fields.findOneAndUpdate({name: field.name}, {
+
+      const hubSpotReadyData = HubSpot().API.formatField({
+        name: (field.name.toLowerCase()).replace(/ /g, '_'),
+        label: field.name,
+        groupName: 'conferences',
+        type: 'enumeration',
+        fieldType: 'checkbox',
+        formField: true,
+        description: `Conferences field for ${field.name} events.`,
+      });
+
+      return HubSpot().Fields.updateOne({name: field.name}, {
+        $set: {
+          hubSpotReadyData,
+        },
         $addToSet: { values: { $each:field.values } } }, {
         returnOriginal: false,
         projection: {name: 1},
@@ -38,7 +52,30 @@ RegOnline().Regs
     });
     return Promise.all(promises);
   })
-  .then(() => {
-    console.log('Upsert data from RegOnline Registrations Collection into HubSpot Conference Fields Collection')
-  })  
+  .then((results) => {
+    console.log('Upsert data from RegOnline Registrations Collection into HubSpot Conference Fields Collection');
+    return HubSpot().Fields.find({}).toArray()
+  })
+  .then((fields) => {
+    const promises = fields.map((field) => {
+      const options = field.values.map((value) => {
+        return {
+          value,
+          label: value
+        }
+      });
+      field.hubSpotReadyData.options = options;
+      return HubSpot().Fields.updateOne({name: field.name}, {
+          $set: {
+            "hubSpotReadyData.options": options
+          } 
+        }, {
+        returnOriginal: false,
+        projection: {name: 1},
+        upsert: true
+      });
+    });
+    return Promise.all(promises);
+  })
+  .then(console.log)
   .catch(console.log);

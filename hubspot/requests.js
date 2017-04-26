@@ -179,9 +179,14 @@ const HubSpotAPI = {
   },
   formatResponse: (results) => {
 
+    const arr = results.config.url.split('/');
+    const name = arr[arr.length - 1];
+
     const obj = Object.assign(Object.create(null), { 
       status: undefined,
       msg: undefined,
+      url: results.config.url,
+      name
     });
 
     if (results instanceof Error) {
@@ -190,13 +195,26 @@ const HubSpotAPI = {
       obj.msg = results.response.data.message;
     } else {
       obj.status = results.status;
-      obj.msg = results.statusText
-      obj.data = results.data
+      obj.msg = results.statusText;
+      obj.data = results.data;
     }
+    return obj;
+  },
+  formatField(data) {
+
+    const obj = {
+      name: data.name,
+      label: data.label,
+      groupName: data.groupName,
+      type: data.type,
+      fieldType: data.fieldType,
+      formField: data.formField,
+      description: data.description || ' '
+    };
 
     return obj;
+  }
 
-  }        
 }
 
 module.exports = {HubSpotAPI};

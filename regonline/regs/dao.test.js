@@ -55,8 +55,9 @@ describe('Regs Data Access Object (RegsDAO)', () => {
       .then((result) => {
         result.forEach((reg) => {
           expect(regsIDs).toInclude(reg.ID);
-        });
+        })
       })
+      .catch(console.log);
   });
 });
 
