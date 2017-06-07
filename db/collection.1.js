@@ -9,8 +9,11 @@ const {connection,queryCollection,upsertOne}
  */
 class Collection{
 
-  constructor(name) {
+  constructor(name, options) {
+    this.collection;
     this.name = name;
+    this.options = options || {};
+
   }
 
   aggregate(pipeline, options) {
@@ -18,13 +21,11 @@ class Collection{
     pipeline = pipeline || {};
     options = options || {};
 
-    const cursor = connection
-                    .then((db) => {
-                      return db.collection(this.name).aggregate(pipeline, options);
-                    });
-
     const obj = {
-      cursor: Promise.resolve(cursor),
+      cursor: this._getCollection()
+        .then((collection) => {
+          return Promise.resolve(collection.aggregate(pipeline, options));
+        }),
       toArray:  () => {
         return obj.cursor.then(toArray);
       },
@@ -54,13 +55,11 @@ class Collection{
     doc = doc || {};
     project = project || {};
 
-    const cursor = connection
-                    .then((db) => {
-                      return db.collection(this.name).find(doc, project);
-                    });
-
     const obj = {
-      cursor: Promise.resolve(cursor),
+      cursor: this._getCollection()
+        .then((collection) => {
+          return Promise.resolve(collection.find(doc, project));
+        }),
       toArray:  () => {
         return obj.cursor.then(toArray);
       },
@@ -77,6 +76,7 @@ class Collection{
 
     }
     return obj;
+
   }
 
   /**
@@ -86,10 +86,10 @@ class Collection{
    */
   drop(options) {
     options = options || {};
-    return connection
-      .then((db) => {
-        return db.collection(this.name).drop(options);
-      });
+    return this._getCollection()
+      .then((collection) => {
+        return Promise.resolve(collection.drop(options));
+      })
   }
 
   /**
@@ -100,19 +100,19 @@ class Collection{
    */
   createIndex(spec, options) {
     options = options || {};
-    return connection
-      .then((db) => {
-        return db.collection(this.name).createIndex(spec, options);
-      });
+    return this._getCollection()
+      .then((collection) => {
+        return Promise.resolve(collection.createIndex(spec, options));
+      })
   }
 
   distinct(key, query, options) {
     query = query || {};
     options = options || {};
-    return connection
-      .then((db) => {
-        return db.collection(this.name).distinct(key, query, options);
-      });
+    return this._getCollection()
+      .then((collection) => {
+        return Promise.resolve(collection.distinct(key, query, options));
+      })
   }
 
   /**
@@ -123,10 +123,10 @@ class Collection{
    */
   insertMany(docs, options) {
     options = options || {};
-    return connection
-      .then((db) => {
-        return db.collection(this.name).insertMany(docs, options);
-      });
+    return this._getCollection()
+      .then((collection) => {
+        return Promise.resolve(collection.insertMany(docs, options));
+      })
   }
 
   /**
@@ -136,30 +136,53 @@ class Collection{
    * @param {object} doc - The data to update the document
    * @param {object} options - The options object
    */
-  updateOne(filter, doc, options){
-    
+  updateOne(filter, doc, options) {
     options = options || {};
-    return connection
-      .then((db) => {
-        return db.collection(this.name).updateOne(filter, doc, options);
-      });
+    return this._getCollection()
+      .then((collection) => {
+        return Promise.resolve(collection.updateOne(filter, doc, options));
+      })
   }
 
-  findOneAndUpdate(filter, doc, options){
+  findOneAndUpdate(filter, doc, options) {
     options = options || {};
-    return connection
-      .then((db) => {
-        return db.collection(this.name).findOneAndUpdate(filter, doc, options);
-      });
+    return this._getCollection()
+      .then((collection) => {
+        return Promise.resolve(collection.findOneAndUpdate(filter, doc, options));
+      })
   }
 
-  insert(doc, options){
+  insert(doc, options) {
     options = options || {};
-    return connection
+    return this._getCollection()
+      .then((collection) => {
+        return Promise.resolve(collection.insert(doc, options));
+      })
+  }
+
+  _getCollection() {
+    let _db;
+    if (this.collection) {
+      return this.colletion
+    } else {
+      return connection
       .then((db) => {
-        return db.collection(this.name).insert(doc, options);
-      });
-  }  
+        _db = db;
+        return _db.listCollections({name: this.name}).toArray()
+      })
+      .then((colls) => {
+        if (colls) {
+          this.collection = _db.collection(this.name);
+          return this.collection;
+        }
+        return _db.createCollection(this.name, this.options)
+          .then((collection) => {
+            this.collection = collection;
+            return this.collection;
+          })
+      })
+    }
+  }
   
 }
 

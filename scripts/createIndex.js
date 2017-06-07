@@ -25,7 +25,7 @@ HubSpot().Fields.createIndex({name: 1}, {unique: true})
   })
   .catch(console.log);
 
-HubSpot().Contacts.createIndex({email: 1}, {unique: true})
+HubSpot().Contacts.createIndex({_id: 1}, {unique: true})
   .then(() => {
     console.log('Create Hubspot Contacts index:Complete')
   })

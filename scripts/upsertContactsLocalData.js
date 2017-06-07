@@ -9,21 +9,23 @@ RegOnline().Regs.aggregate(
       conferences: {
         $addToSet: {
           name: "$eventTitle",
-          attendeeType: "$hubSpotAttendeeType"
+          attendeeType: "$hubSpotAttendeeType",
+          modDate: "$ModDate"
         }
       }        
     },
-
   }
 ]
 )
 .toArray()
 .then((results) => {
   results.forEach((result) => {
+
     result.conferences = result.conferences.map((conf) => {
       const arr = conf.name.split(' ')
       arr.shift();
       conf.name = (arr.join(' '));
+      conf.hsName = (conf.name.replace(/ /g, '_')).toLowerCase();
       return conf;
     })
   })
@@ -32,13 +34,13 @@ RegOnline().Regs.aggregate(
 .then((contacts) => {
 
   const promises = contacts.map((contact) => {
-    return   HubSpot().Contacts.findOneAndUpdate({_id:contact._id}, 
+    return   HubSpot().Contacts.findOneAndUpdate({_id:contact._id.toLowerCase()}, 
     {$addToSet: { conferences: { $each: contact.conferences }} },
     {upsert:true})
   })
   return Promise.all(promises);
 })
-.then((results) => {
-  console.log(results);
+.then(() => {
+  console.log('update db Contacts Collection')
 })
 .catch(console.log)

@@ -3,8 +3,8 @@ const Promise = require('bluebird');
 const {logger, emitter} = require('../config/config');
 const MongoClient = require('mongodb').MongoClient;
 const dbCon = new MongoClient();
-const connection = dbCon.connect(process.env.DB_URI);
-
+//const connection = dbCon.connect(process.env.DB_URI);
+const connection = dbCon.connect('mongodb://test:test@ds157499.mlab.com:57499/pbm-api-dev')
 /**
  * Query a collection
  * 
@@ -20,21 +20,7 @@ function queryCollection(collection, query, project) {
     });
 }
 
-/**
- * Wraps the cursor.toArray method in a Promise
- * 
- * @param {object} cursor - The db cursor
- */
-function toArray(cursor){
-  return new Promise((resolve, reject) => {
-    cursor.toArray((err, docs) => {
-      if (err) {
-        reject(err);
-      }
-      resolve(docs);
-    });
-  });
-};
+
 
 /**
  * UpsertOne document into a collection
@@ -58,6 +44,5 @@ function upsertOne(doc, collection, options){
 module.exports = {
   connection,
   queryCollection,
-  toArray,
   upsertOne
 };

@@ -79,6 +79,28 @@ const HubSpotAPI = {
         return apiRequest(req);
       });
   },
+  getBatchOfContactsByEmail: (emails) => {
+
+    let str = emails[0];
+
+    for (let i = 0; i < emails.length; i++){
+      str += `&email=${emails[i]}`;
+    }
+
+    return HubSpotAPI.getToken()
+      .then((res) => {
+        const req = {
+          baseURL: HOST,
+          method: 'GET',
+          url: `/contacts/v1/contact/emails/batch/?email=${str}`,
+          headers: {
+            'Authorization': `Bearer ${res.data.access_token}`
+          }
+        }
+
+        return apiRequest(req);
+      });
+  },  
   getAllContactProperties: () => {
     return HubSpotAPI.getToken()
       .then((res) => {
@@ -111,6 +133,23 @@ const HubSpotAPI = {
       })
 
   },
+  createUpdateGroupOfContacts: (data) => {
+    return HubSpotAPI.getToken()
+      .then((res) => {
+        const req = {
+          baseURL: HOST,
+          method: 'POST',
+          url: '/contacts/v1/contact/batch/',
+          headers: {
+            'Authorization': `Bearer ${res.data.access_token}`,
+            'Content-Type': 'application/json'
+          },
+          data
+        }
+
+        return apiRequest(req);
+      });
+  },  
   createContactProperty: (data) => {
     return HubSpotAPI.getToken()
       .then((res) => {
@@ -213,7 +252,16 @@ const HubSpotAPI = {
     };
 
     return obj;
-  }
+  },
+  formatContact(data) {
+
+    const obj = {
+      email: data.email,
+      properties: data.properties
+    };
+
+    return obj;
+  }  
 
 }
 
