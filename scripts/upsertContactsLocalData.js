@@ -1,5 +1,6 @@
 const {HubSpot} = require('../hubspot/hubspot');
 const {RegOnline} = require('../regonline/regonline');
+const {logger} = require('../logger');
 
 RegOnline().Regs.aggregate(
   [
@@ -10,9 +11,13 @@ RegOnline().Regs.aggregate(
         $addToSet: {
           name: "$eventTitle",
           attendeeType: "$hubSpotAttendeeType",
+        }
+      },
+      modDates: {
+        $addToSet: {
           modDate: "$ModDate"
         }
-      }        
+      }     
     },
   }
 ]
@@ -34,13 +39,24 @@ RegOnline().Regs.aggregate(
 .then((contacts) => {
 
   const promises = contacts.map((contact) => {
-    return   HubSpot().Contacts.findOneAndUpdate({_id:contact._id.toLowerCase()}, 
-    {$addToSet: { conferences: { $each: contact.conferences }} },
+    return HubSpot().Contacts.updateOne({
+      emailAddresses: contact._id
+    }, {
+      $addToSet: { 
+        conferences: { $each: contact.conferences },
+        modDates: { $each: contact.modDates }
+      } 
+    },
     {upsert:true})
   })
   return Promise.all(promises);
 })
 .then(() => {
-  console.log('update db Contacts Collection')
+  logger.info('Update contacts with RegOnline Event registration data');
+  setTimeout(() => {
+    process.emit('exit');
+  }, 500);
 })
-.catch(console.log)
+.catch((err) => {
+  logger.error(err);
+});

@@ -1,10 +1,43 @@
 'use strict';
 const Promise = require('bluebird');
-const {logger, emitter} = require('../config/config');
+const {emitter} = require('../config/config');
+const {logger} = require('../logger');
 const MongoClient = require('mongodb').MongoClient;
 const dbCon = new MongoClient();
 //const connection = dbCon.connect(process.env.DB_URI);
-const connection = dbCon.connect('mongodb://test:test@ds157499.mlab.com:57499/pbm-api-dev')
+const connection = dbCon.connect(process.env.DB_URI)
+
+
+const closeDB = () => {
+  connection
+    .then((db) => {
+      return db.close();
+    })
+    .then(() => {
+      logger.info('db closed by application');
+      process.exit();
+    })
+    .catch((err) => {
+      logger.error(err);
+      process.exit();
+    });
+}
+
+if (process.platform === "win32") {
+  require("readline")
+    .createInterface({
+      input: process.stdin,
+      output: process.stdout
+    })
+    .on("SIGINT", function () {
+      process.emit("SIGINT");
+    });
+
+}
+process.on("unhandledException", closeDB);
+process.on("exit", closeDB);
+process.on("SIGINT", closeDB);
+
 /**
  * Query a collection
  * 
@@ -19,8 +52,6 @@ function queryCollection(collection, query, project) {
       return db.collection(collection).find(query).project(project);;
     });
 }
-
-
 
 /**
  * UpsertOne document into a collection

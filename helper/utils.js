@@ -17,16 +17,12 @@ function cast(datatype, val){
   switch (datatype){
     case (typeof val):
       return val;
-      break;
     case 'number':
       return Number(val);
-      break;
     case 'string':
       return String(val);
-      break;
     case 'date':
       return new Date(val);
-      break;
     case 'boolean':
       return Boolean(val);
     default:

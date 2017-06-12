@@ -77,6 +77,7 @@ const RegsDAO = () => {
           eventAddDate: eventIDMap[doc.EventID].AddDate,
         }
         doc = Object.assign(doc, options, inserts);
+        doc.Email = doc.Email.toLowerCase().trim();
         return Regs.updateOne({ID: Number(doc.ID)}, DOFactory(doc, RegSchema), {upsert: true});
       });
       promises = promises.concat(docsRegs);

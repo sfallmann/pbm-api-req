@@ -1,5 +1,6 @@
 const {HubSpot} = require('../hubspot/hubspot');
 const {RegOnline} = require('../regonline/regonline');
+const {logger} = require('../logger');
 
 let conferenceFields = [];
 
@@ -53,7 +54,6 @@ RegOnline().Regs
     return Promise.all(promises);
   })
   .then((results) => {
-    console.log('Upsert data from RegOnline Registrations Collection into HubSpot Conference Fields Collection');
     return HubSpot().Fields.find({}).toArray()
   })
   .then((fields) => {
@@ -77,5 +77,12 @@ RegOnline().Regs
     });
     return Promise.all(promises);
   })
-  .then(console.log)
-  .catch(console.log);
+.then(() => {
+  logger.info('Update fields with RegOnline Event custom field data');
+  setTimeout(() => {
+    process.emit('exit');
+  }, 500);
+})
+.catch((err) => {
+  logger.error(err);
+});

@@ -145,6 +145,15 @@ class Collection{
       });
   }
 
+   updateMany(filter, doc, options){
+    
+    options = options || {};
+    return connection
+      .then((db) => {
+        return db.collection(this.name).updateMany(filter, doc, options);
+      });
+  } 
+
   findOneAndUpdate(filter, doc, options){
     options = options || {};
     return connection

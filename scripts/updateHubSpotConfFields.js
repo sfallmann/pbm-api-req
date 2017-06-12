@@ -1,4 +1,6 @@
 const {HubSpot} = require('../hubspot/hubspot');
+const {logger} = require('../logger');
+
 let dbFields;
 const hbsptFields = [];
 
@@ -65,7 +67,15 @@ HubSpot().Fields.find({})
     })
     return Promise.all(promises);
   })
-  .then(console.log)
-  .catch(console.log);
+.then(() => {
+  logger.info('Update fields in HubSpot'); 
+  setTimeout(() => {
+    process.emit('exit');
+  }, 500);
+})
+.catch((err) => {
+  logger.error(err);
+});
+
 
 

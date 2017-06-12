@@ -2,25 +2,70 @@
 const Promise = require('bluebird')
 const {chunk} = require('../helper/utils');
 const {HubSpot} = require('../hubspot/hubspot');
+const {logger} = require('../logger');
 
-HubSpot().Fields.find({},{"hubSpotReadyData.name": 1, "hubSpotReadyData.label": 1})
-.toArray()
+let hsFields, hsContacts;
+
+HubSpot().Fields.find({}).toArray()
 .then((fields) => {
-  const project = Object.create(null);
-  project.conferences = 1;
-  fields.forEach((field) => {
-    project[`hsRawData.properties.${field.hubSpotReadyData.name}`] = 1;
-  });
-  return HubSpot().Contacts.find({},project).toArray();
+  hsFields = fields;
+  return HubSpot().Contacts.find({}).toArray()
 })
 .then((contacts) => {
+  hsContacts = contacts;
   const promises = [];
-  contacts.forEach((contact) => {
-    const data = Object.create(null);
-    
-    if (contact.conferences === undefined){
-      console.log(contact)
-    }
+  hsContacts.forEach((contact) => {
+    const properties = [];
+    const hubSpotReadyData = Object.create(null);
+    hsFields.forEach((field) => {
+      const values = [];
+      const fieldName = field.hubSpotReadyData.name;
+      if (contact.hsRawData){
+        if (fieldName in contact.hsRawData.properties){
+          let confVal = contact.hsRawData.properties[fieldName].value.split(';');
+          confVal.forEach((val) => {
+            values.push(val);
+          });
+        }
+      }
+      if (contact.conferences) {
+        contact.conferences.forEach((conf) => {
+          if(conf.hsName === fieldName){
+            if (values.indexOf(conf.attendeeType) === -1){
+              values.push(conf.attendeeType);
+            }
+          }
+        })
+      } else {
+        console.log(contact._id)
+      }
+
+
+      if (values.length){
+        properties.push({
+          property: fieldName,
+          value: values.join(';')
+        })
+      }
+
+      if (values.length > 1){
+        console.log(contact._id)
+      }
+    })
+    hubSpotReadyData.properties = properties
+    promises.push(HubSpot().Contacts.updateOne({_id:contact._id},
+      {$set: {hubSpotReadyData}},
+      {upsert: true}
+    ))
   })
+  return Promise.all(promises);
 })
-.catch(console.log);
+.then(() => {
+  logger.info('Update contacts with hubSpotReadyData subdocument containing formatted data');
+  setTimeout(() => {
+    process.emit('exit');
+  }, 500);
+})
+.catch((err) => {
+  logger.error(err);
+});
